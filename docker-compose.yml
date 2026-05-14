@@ -23,5 +23,18 @@ services:
     depends_on:
       - db
 
+  frontend:
+    build:
+      context: ./front/web
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./front/web:/app
+      - /app/node_modules
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:3000
+    depends_on:
+      - backend
+
 volumes:
   pgdata:
