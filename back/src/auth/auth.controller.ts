@@ -43,14 +43,19 @@ export class AuthController {
 
     const hashedPassword = await bcrypt.hash(body.password, 10);
 
-    await this.prisma.user.create({
+    const user = await this.prisma.user.create({
       data: {
         email: body.email,
         password: hashedPassword,
       },
     });
 
-    return { message: 'Registro exitoso' };
+    const payload = { sub: user.id, email: user.email };
+
+    return {
+      message: 'Registro exitoso',
+      access_token: this.jwtService.sign(payload),
+    };
   }
 
   @Post('login')

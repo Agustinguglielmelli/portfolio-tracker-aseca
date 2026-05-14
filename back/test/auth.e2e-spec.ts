@@ -15,6 +15,9 @@ describe('AuthController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.enableCors({
+      origin: 'http://localhost:3000',
+    });
     prisma = app.get<PrismaService>(PrismaService);
     await app.init();
   });
@@ -156,6 +159,37 @@ describe('AuthController (e2e)', () => {
         expect(body.token).toBeDefined();
         expect(body.token.split('.').length).toBe(3);
       });
+  });
+
+  it('/auth/register (POST) - debe registrar un usuario y devolver un access_token para autenticación automática', async () => {
+    const registerDto = {
+      email: 'autologin@example.com',
+      password: 'Password123',
+      confirmPassword: 'Password123',
+    };
+
+    const res = await request(app.getHttpServer())
+      .post('/auth/register')
+      .send(registerDto)
+      .expect(201);
+
+    const body = res.body as { access_token: string };
+
+    expect(body).toHaveProperty('access_token');
+    expect(typeof body.access_token).toBe('string');
+  });
+
+  it('/auth/register (OPTIONS) - debe permitir peticiones CORS para que el frontend consuma la API', async () => {
+    const res = await request(app.getHttpServer())
+      .options('/auth/register')
+      .set('Origin', 'http://localhost:3000')
+      .set('Access-Control-Request-Method', 'POST')
+      .expect(204);
+
+    expect(res.headers).toHaveProperty('access-control-allow-origin');
+    expect(res.headers['access-control-allow-origin']).toBe(
+      'http://localhost:3000',
+    );
   });
 
   afterAll(async () => {
