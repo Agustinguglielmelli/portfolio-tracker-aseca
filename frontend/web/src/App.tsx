@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
-import { LoginPage } from "./components/LoginPage";
-import { RegisterPage } from "./components/RegisterPage";
-import { DashboardLayout } from "./components/DashboardLayout";
+import { LoginPage } from "./pages/LoginPage.tsx";
+import { RegisterPage } from "./pages/RegisterPage.tsx";
+import { DashboardLayout } from "./pages/DashboardLayout.tsx";
 
 // Componente intermedio para poder usar los hooks de React Router
 function AppRoutes() {

@@ -1,15 +1,14 @@
 import { useState } from "react";
-import { Sidebar } from "./Sidebar";
-import { Topbar } from "./Topbar";
-import { Card } from "./Card";
-import { StatsCards } from "./StatsCards";
-import { PerformanceChart } from "./PerformanceChart";
-import { AllocationDonut } from "./AllocationDonut";
-import { PortfolioPanel } from "./PortfolioPanel";
-import { WatchlistPanel } from "./WatchlistPanel";
-import { EdgarSearch } from "./EdgarSearch";
-import { TransactionsLog } from "./TransactionsLog";
-import { CompanyDetail } from "./CompanyDetail";
+import { Sidebar } from "../components/Sidebar.tsx";
+import { Topbar } from "../components/Topbar.tsx";
+import { Card } from "../components/Card.tsx";
+import { StatsCards } from "../components/StatsCards.tsx";
+import { PerformanceChart } from "../components/PerformanceChart.tsx";
+import { PortfolioPanel } from "../components/PortfolioPanel.tsx";
+import { WatchlistPanel } from "../components/WatchlistPanel.tsx";
+import { EdgarSearch } from "../components/EdgarSearch.tsx";
+import { TransactionsLog } from "../components/TransactionsLog.tsx";
+import { CompanyDetail } from "../components/CompanyDetail.tsx";
 import {useNavigate} from "react-router-dom";
 
 export type View = "dashboard" | "portfolio" | "watchlist" | "search";
@@ -87,28 +86,6 @@ export function DashboardLayout() {
                                             </div>
                                         </div>
                                         <PerformanceChart />
-                                    </Card>
-
-                                    <Card glow className="col-span-12 lg:col-span-4 p-6">
-                                        <div className="text-xs text-slate-500 uppercase tracking-wider mb-3">Allocation</div>
-                                        <AllocationDonut total="$361,800.00" />
-                                        <div className="space-y-2 mt-4">
-                                            {[
-                                                { l: "Tech", v: "36.39%", c: "bg-cyan-400" },
-                                                { l: "Finance", v: "17.31%", c: "bg-blue-400" },
-                                                { l: "Energy", v: "15.50%", c: "bg-indigo-400" },
-                                                { l: "Consumer", v: "15.49%", c: "bg-violet-400" },
-                                                { l: "Healthcare", v: "15.30%", c: "bg-sky-400" },
-                                            ].map((row) => (
-                                                <div key={row.l} className="flex items-center justify-between text-sm">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className={`w-2 h-2 rounded-full ${row.c} shadow-[0_0_8px_currentColor]`} />
-                                                        <span className="text-slate-300">{row.l}</span>
-                                                    </div>
-                                                    <span className="text-slate-400">{row.v}</span>
-                                                </div>
-                                            ))}
-                                        </div>
                                     </Card>
                                 </div>
 
