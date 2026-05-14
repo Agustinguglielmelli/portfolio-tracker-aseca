@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { AppModule } from './../src/app.module';
+import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 
@@ -105,6 +105,57 @@ describe('AuthController (e2e)', () => {
 
     const isMatch = await bcrypt.compare(password, user?.password as string);
     expect(isMatch).toBe(true);
+  });
+
+  it('/auth/login (POST) - Validar longitud máxima de email y contraseña', () => {
+    const longString = 'a'.repeat(257);
+    return request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: `${longString}@example.com`,
+        password: longString,
+      })
+      .expect(400);
+  });
+
+  it('/auth/login (POST) - Credenciales inválidas', () => {
+    return request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: 'noexiste@example.com',
+        password: 'Password123!',
+      })
+      .expect(401)
+      .expect((res: request.Response) => {
+        const body = res.body as { message: string };
+        expect(body.message).toEqual('Credenciales inválidas');
+      });
+  });
+
+  it('/auth/login (POST) - Login exitoso y devuelve JWT', async () => {
+    const password = 'Password123!';
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await prisma.user.create({
+      data: {
+        email: 'valido@example.com',
+        password: hashedPassword,
+      },
+    });
+
+    return request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: 'valido@example.com',
+        password: password,
+      })
+      .expect(200)
+      .expect((res: request.Response) => {
+        const body = res.body as { message: string; token: string };
+        expect(body.message).toEqual('Login exitoso');
+        expect(body.token).toBeDefined();
+        expect(body.token.split('.').length).toBe(3);
+      });
   });
 
   afterAll(async () => {
