@@ -11,7 +11,7 @@ export function Topbar({ lastUpdate, onRefresh, refreshing }: TopbarProps) {
     <header className="h-16 shrink-0 border-b border-white/5 bg-[#0a1224]/60 backdrop-blur-xl flex items-center px-6 gap-6">
       <div className="flex items-center gap-2">
         <div className="w-7 h-7 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 shadow-[0_0_8px_rgba(56,189,248,0.3)]" />
-        <span className="text-white tracking-wide">Holistic</span>
+        <span className="text-white tracking-wide">MATF</span>
       </div>
 
       <div className="flex-1 max-w-md relative">
