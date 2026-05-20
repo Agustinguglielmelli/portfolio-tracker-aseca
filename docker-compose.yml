@@ -17,6 +17,7 @@ services:
       - "3000:3000"
     environment:
       DATABASE_URL: postgres://postgres:password@db:5432/backend_db
+    command: sh -c "npx prisma migrate deploy && npm run dev"
     volumes:
       - ./back:/app
       - /app/node_modules
@@ -25,14 +26,14 @@ services:
 
   frontend:
     build:
-      context: ./front/web
+      context: ./front
     ports:
       - "3001:3000"
     volumes:
-      - ./front/web:/app
+      - ./front:/app
       - /app/node_modules
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:3000
+      - VITE_API_URL=http://localhost:3000
     depends_on:
       - backend
 
