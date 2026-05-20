@@ -1,5 +1,0 @@
-export { Sidebar } from "./sidebar"
-export { Topbar } from "./topbar"
-export { StatsCards } from "./stats-cards"
-export { PerformanceChart } from "./performance-chart"
-export { TransactionsLog } from "./transactions-log"
