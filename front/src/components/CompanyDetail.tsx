@@ -36,6 +36,7 @@ interface ChartDataPoint {
     revenue?: number;
     netIncome?: number;
     eps?: number;
+    [key: string]: string | number | undefined;
 }
 
 // Función auxiliar para formatear moneda en tarjetas
@@ -56,7 +57,7 @@ const formatChartData = (history: HistoricalData | null): ChartDataPoint[] => {
         metricArray.forEach((item) => {
             if (!dateMap.has(item.date)) dateMap.set(item.date, { date: item.date });
             const dataPoint = dateMap.get(item.date)!;
-            (dataPoint as any)[key] = item.value;
+            dataPoint[key as string] = item.value;
         });
     };
 
@@ -107,7 +108,7 @@ export const CompanyDetail = () => {
             }
         };
 
-        fetchData();
+        void fetchData();
     }, [ticker]);
 
     if (loading) return <div className="text-center p-10">Cargando datos de {ticker}...</div>;
@@ -156,9 +157,9 @@ export const CompanyDetail = () => {
                                     tick={{fontSize: 12}}
                                 />
                                 <Tooltip
-                                    formatter={(value: number, name: string) => [
-                                        name === 'EPS' ? `$${value.toFixed(2)}` : formatCurrency(value),
-                                        name
+                                    formatter={(value, name) => [
+                                        name === 'EPS' ? `$${Number(value).toFixed(2)}` : formatCurrency(Number(value)),
+                                        name as string
                                     ]}
                                     labelStyle={{ color: 'black' }}
                                 />
@@ -178,7 +179,7 @@ export const CompanyDetail = () => {
             <section>
                 <h2 className="text-xl font-semibold mb-4 border-b pb-2 text-gray-700">Filings Recientes (10-K / 10-Q)</h2>
                 <div className="bg-white shadow rounded-lg divide-y">
-                    {filings.length > 0 ? filings.map((filing: any) => (
+                    {filings.length > 0 ? filings.map((filing: Filing) => (
                         <div key={filing.accessionNumber} className="p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center hover:bg-gray-50 transition">
                             <div>
                                 <span className="font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded text-sm">{filing.type}</span>
