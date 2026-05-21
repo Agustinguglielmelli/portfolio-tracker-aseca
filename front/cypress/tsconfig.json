@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "es2017",
+    "lib": ["es2017", "dom"],
+    "types": ["cypress", "node"],
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "ignoreDeprecations": "6.0"
+  },
+  "include": [
+    "e2e/**/*.ts",
+    "support/**/*.ts",
+    "support/**/*.d.ts"
+  ]
+}

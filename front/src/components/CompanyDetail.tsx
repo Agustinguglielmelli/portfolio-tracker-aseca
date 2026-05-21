@@ -12,8 +12,34 @@ import {
     ResponsiveContainer,
 } from 'recharts';
 
+interface FinancialMetrics {
+    revenue: number | null;
+    netIncome: number | null;
+    eps: number | null;
+    totalAssets: number | null;
+}
+
+interface Filing {
+    accessionNumber: string;
+    type: string;
+    date: string;
+}
+
+interface HistoricalData {
+    revenue?: { date: string; value: number }[];
+    netIncome?: { date: string; value: number }[];
+    eps?: { date: string; value: number }[];
+}
+
+interface ChartDataPoint {
+    date: string;
+    revenue?: number;
+    netIncome?: number;
+    eps?: number;
+}
+
 // Función auxiliar para formatear moneda en tarjetas
-const formatCurrency = (val: number | null) => {
+const formatCurrency = (val: number | null | undefined) => {
     if (val === null || val === undefined) return 'N/A';
     if (val > 1e9) return `$${(val / 1e9).toFixed(2)}B`;
     if (val > 1e6) return `$${(val / 1e6).toFixed(2)}M`;
@@ -21,15 +47,16 @@ const formatCurrency = (val: number | null) => {
 };
 
 // Función para transformar los datos del backend para el gráfico de Recharts
-const formatChartData = (history: any) => {
+const formatChartData = (history: HistoricalData | null): ChartDataPoint[] => {
     if (!history) return [];
-    const dateMap = new Map();
+    const dateMap = new Map<string, ChartDataPoint>();
 
-    const processMetric = (metricArray: any[], key: string) => {
+    const processMetric = (metricArray: { date: string; value: number }[] | undefined, key: keyof ChartDataPoint) => {
         if (!metricArray) return;
         metricArray.forEach((item) => {
             if (!dateMap.has(item.date)) dateMap.set(item.date, { date: item.date });
-            dateMap.get(item.date)[key] = item.value;
+            const dataPoint = dateMap.get(item.date)!;
+            (dataPoint as any)[key] = item.value;
         });
     };
 
@@ -39,7 +66,7 @@ const formatChartData = (history: any) => {
 
     // Ordenar cronológicamente (del más viejo al más nuevo para que el gráfico vaya hacia adelante)
     return Array.from(dateMap.values()).sort(
-        (a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime()
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
 };
 
@@ -48,9 +75,9 @@ export const CompanyDetail = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    const [metrics, setMetrics] = useState<any>(null);
-    const [filings, setFilings] = useState<any[]>([]);
-    const [history, setHistory] = useState<any>(null);
+    const [metrics, setMetrics] = useState<FinancialMetrics | null>(null);
+    const [filings, setFilings] = useState<Filing[]>([]);
+    const [history, setHistory] = useState<HistoricalData | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -73,6 +100,7 @@ export const CompanyDetail = () => {
                 setFilings(filingsData);
                 setHistory(historyData);
             } catch (err) {
+                console.error(err);
                 setError('No se pudo cargar la información financiera de esta empresa.');
             } finally {
                 setLoading(false);

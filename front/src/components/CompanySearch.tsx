@@ -2,9 +2,15 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { companiesApi } from '../services/api';
 
+interface CompanySearchResult {
+    cik: string;
+    name: string;
+    ticker: string;
+}
+
 export const CompanySearch = () => {
     const [query, setQuery] = useState('');
-    const [results, setResults] = useState<any[]>([]);
+    const [results, setResults] = useState<CompanySearchResult[]>([]);
     const [hasSearched, setHasSearched] = useState(false);
     const navigate = useNavigate();
 
