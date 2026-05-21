@@ -3,6 +3,8 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import type {JSX} from "react";
+import {CompanySearch} from "./components/CompanySearch.tsx";
+import {CompanyDetail} from "./components/CompanyDetail.tsx";
 
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const token = localStorage.getItem('token');
@@ -25,6 +27,8 @@ function App() {
                 </ProtectedRoute>
               }
           />
+            <Route path="/search" element={<CompanySearch />} />
+            <Route path="/companies/:ticker" element={<CompanyDetail />} />
         </Routes>
       </BrowserRouter>
   );

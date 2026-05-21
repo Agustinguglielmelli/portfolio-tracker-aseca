@@ -15,6 +15,8 @@ services:
       context: ./back
     ports:
       - "3000:3000"
+    env_file:
+      - ./back/.env
     environment:
       DATABASE_URL: postgres://postgres:password@db:5432/backend_db
     command: sh -c "npx prisma generate && npx prisma db push && npm run start:dev"
