@@ -10,13 +10,37 @@ export class CompaniesService {
     const data = await this.companiesRepository.searchCompaniesRaw(query);
     if (!data || !data.hits || !data.hits.hits) return [];
 
-    const results = data.hits.hits.map((hit: any) => ({
-      name: hit._source.display_names
+    const results = data.hits.hits.map((hit: any) => {
+      const rawName = hit._source.display_names
         ? hit._source.display_names[0]
-        : 'Desconocido',
-      ticker: hit._source.tickers ? hit._source.tickers[0] : null,
-      cik: hit._source.ciks ? hit._source.ciks[0] : null,
-    }));
+        : 'Desconocido';
+
+      const cik =
+        hit._source.ciks && hit._source.ciks.length > 0
+          ? hit._source.ciks[0]
+          : null;
+
+      let cleanName = rawName;
+      let ticker = null;
+
+      if (rawName !== 'Desconocido') {
+        const tickerMatch = rawName.match(/\(([^)]+)\)\s*\(CIK/);
+        if (tickerMatch) {
+          ticker = tickerMatch[1];
+        }
+
+        const nameMatch = rawName.match(/^(.*?)\s*\(/);
+        if (nameMatch) {
+          cleanName = nameMatch[1].trim();
+        }
+      }
+
+      return {
+        name: cleanName,
+        ticker: ticker,
+        cik: cik,
+      };
+    });
 
     const uniqueResults: any[] = [];
     const ciks = new Set();
