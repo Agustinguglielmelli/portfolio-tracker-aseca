@@ -101,20 +101,10 @@ class TestSuccessfulTickerUpdate:
 
         import pandas as pd
 
-        close_series = pd.Series([190.50], name="AAPL")
-        close_df = MagicMock(name="close_df")
-        close_df.columns = ["AAPL"]
-        close_df.__contains__ = MagicMock(return_value=True)
-        close_df.__getitem__ = MagicMock(return_value=close_series.dropna())
-
-        df_stub = MagicMock(name="download_df")
-        df_stub.empty = False
-        df_stub.__getitem__ = MagicMock(return_value=close_df)
-
-        with patch("update_prices.yf") as mock_yf, \
+        df_stub = pd.DataFrame({"Close": [190.50]})
+        
+        with patch.object(update_prices.yf, "download", return_value=df_stub), \
              patch("update_prices.upsert_stock_price") as mock_upsert:
-
-            mock_yf.download.return_value = df_stub
 
             config = {"fetch_timeout": 30}
             success, errors = run_batch(conn, ["AAPL"], config)
@@ -141,13 +131,12 @@ class TestFailedTickerContinues:
         conn, cur = _make_conn()
 
         # Empty batch result → both tickers fall through to single fetch
-        with patch("update_prices.yf") as mock_yf, \
+        with patch.object(update_prices.yf, "download") as mock_download, \
+             patch.object(update_prices.yf.Ticker, "side_effect") as mock_ticker_se, \
              patch("update_prices.upsert_stock_price") as mock_upsert:
 
-            # Batch download returns empty DataFrame
-            empty_df = MagicMock(name="empty_df")
-            empty_df.empty = True
-            mock_yf.download.return_value = empty_df
+            import pandas as pd
+            mock_download.return_value = pd.DataFrame()
 
             # Single-fetch via fast_info
             aapl_info = {"lastPrice": 155.00}
@@ -158,7 +147,7 @@ class TestFailedTickerContinues:
                 t.fast_info = aapl_info if sym == "AAPL" else msft_info
                 return t
 
-            mock_yf.Ticker.side_effect = _ticker_side_effect
+            update_prices.yf.Ticker.side_effect = _ticker_side_effect
 
             config = {"fetch_timeout": 30}
             success, errors = run_batch(conn, ["AAPL", "MSFT"], config)  # US 3.1
@@ -189,17 +178,15 @@ class TestYfinanceTimeoutDoesNotInterruptBatch:
 
         conn, _ = _make_conn()
 
-        with patch("update_prices.yf") as mock_yf, \
+        with patch.object(update_prices.yf, "download", side_effect=_slow_download), \
+             patch.object(update_prices.yf, "Ticker") as mock_ticker, \
              patch("update_prices.upsert_stock_price") as mock_upsert:
-
-            mock_yf.download.side_effect = _slow_download
-
             ticker_mock = MagicMock()
             ticker_mock.fast_info = {}
             # fast_info.get always returns None (no price)
             ticker_mock.fast_info = MagicMock()
             ticker_mock.fast_info.get.return_value = None
-            mock_yf.Ticker.return_value = ticker_mock
+            mock_ticker.return_value = ticker_mock
 
             config = {"fetch_timeout": 1}  # Very short so thread truly times out
             # Should NOT raise any exception  # US 3.1
@@ -267,18 +254,18 @@ class TestExitCodes:
         conn_mock.cursor.return_value.__exit__ = MagicMock(return_value=False)
 
         with patch("update_prices.psycopg2") as mock_pg, \
-             patch("update_prices.yf") as mock_yf:
+             patch.object(update_prices.yf, "download") as mock_download, \
+             patch.object(update_prices.yf, "Ticker") as mock_ticker:
 
             mock_pg.connect.return_value = conn_mock
 
-            empty_df = MagicMock()
-            empty_df.empty = True
-            mock_yf.download.return_value = empty_df
+            import pandas as pd
+            mock_download.return_value = pd.DataFrame()
 
             ticker_mock = MagicMock()
             ticker_mock.fast_info = MagicMock()
             ticker_mock.fast_info.get.return_value = None
-            mock_yf.Ticker.return_value = ticker_mock
+            mock_ticker.return_value = ticker_mock
 
             with pytest.raises(SystemExit) as exc_info:  # US 3.2
                 main()
