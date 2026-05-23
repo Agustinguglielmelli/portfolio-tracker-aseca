@@ -5,6 +5,8 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { AuthRepository } from './auth.repository';
 import { PrismaModule } from '../prisma/prisma.module';
+import { JwtAuthGuard } from './jwt-auth.guard';
+import { AdminGuard } from './admin.guard'; // US 3.1
 
 @Module({
   imports: [
@@ -18,6 +20,7 @@ import { PrismaModule } from '../prisma/prisma.module';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, AuthRepository],
+  providers: [AuthService, AuthRepository, JwtAuthGuard, AdminGuard], // US 3.1
+  exports: [JwtAuthGuard, AdminGuard, JwtModule], // US 3.1 — Export guards so PricesModule can use them
 })
 export class AuthModule {}

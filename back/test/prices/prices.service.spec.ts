@@ -2,11 +2,17 @@ import { ServiceUnavailableException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter } from 'events';
 import { Readable } from 'stream';
+
+jest.mock('@prisma/client', () => ({
+  PrismaClient: jest.fn().mockImplementation(() => ({})),
+}));
+
 import {
   BatchResult,
   PricesService,
   SpawnFn,
 } from '../../src/prices/prices.service';
+import { PrismaService } from '../../src/prisma/prisma.service';
 
 // ---------------------------------------------------------------------------
 // Helpers to build a fake child process
@@ -40,14 +46,33 @@ function makeFakeChild(config: FakeChildConfig): any {
 }
 
 // ---------------------------------------------------------------------------
+// Mock PrismaService — US 3.3: PricesService now depends on PrismaService
+// to persist BatchLog entries. We mock it so unit tests remain DB-free.
+// ---------------------------------------------------------------------------
+const mockPrismaService = {
+  batchLog: {
+    create: jest.fn().mockResolvedValue({}),
+    findFirst: jest.fn().mockResolvedValue(null),
+  },
+};
+
+// ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
 describe('PricesService', () => {
   let service: PricesService;
 
   beforeEach(async () => {
+    jest.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
-      providers: [PricesService],
+      providers: [
+        PricesService,
+        // US 3.3 — Override PrismaService with a mock so tests remain DB-free
+        {
+          provide: PrismaService,
+          useValue: mockPrismaService,
+        },
+      ],
     }).compile();
 
     service = module.get<PricesService>(PricesService);
@@ -66,11 +91,14 @@ describe('PricesService', () => {
     expect(service).toBeDefined();
   });
 
-  it('resolves with parsed BatchResult on successful child process exit', async () => {
+  // US 3.3 — Test that TICKER_DETAIL lines are parsed and stored in BatchLog
+  it('resolves with parsed BatchResult and stores TICKER_DETAIL in BatchLog', async () => {
     const fakeChild = makeFakeChild({
       stdoutLines: [
         '2024-01-01T00:00:00 [INFO] Script started',
-        'BATCH_RESULT: tickersProcessed=3 success=2 errors=1',
+        'TICKER_DETAIL: ticker=AAPL status=SUCCESS price=190.50',
+        'TICKER_DETAIL: ticker=MSFT status=ERROR error=Could not retrieve price',
+        'BATCH_RESULT: tickersProcessed=2 success=1 errors=1',
       ],
       exitCode: 0,
     });
@@ -84,10 +112,24 @@ describe('PricesService', () => {
       expect.objectContaining({ env: expect.any(Object) }),
     );
     expect(result).toEqual<BatchResult>({
-      tickersProcessed: 3,
-      success: 2,
+      tickersProcessed: 2,
+      success: 1,
       errors: 1,
     });
+    // US 3.3 — Verify BatchLog was persisted with parsed TICKER_DETAIL array
+    expect(mockPrismaService.batchLog.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          tickersProcessed: 2,
+          success: 1,
+          errors: 1,
+          details: [
+            { ticker: 'AAPL', price: 190.5 },
+            { ticker: 'MSFT', error: 'Could not retrieve price' },
+          ],
+        }),
+      }),
+    );
   });
 
   it('returns zeroed BatchResult when BATCH_RESULT line is absent', async () => {
@@ -124,5 +166,34 @@ describe('PricesService', () => {
     setImmediate(() => child.emit('error', new Error('python3 not found')));
 
     await expect(promise).rejects.toThrow(ServiceUnavailableException);
+  });
+
+  // US 3.3 — Test getLastUpdate() empty state
+  it('getLastUpdate returns empty-state response when no BatchLog exists', async () => {
+    mockPrismaService.batchLog.findFirst.mockResolvedValueOnce(null);
+    const result = await service.getLastUpdate();
+    expect(result.lastUpdate).toBeNull();
+    expect(result.details).toEqual([]);
+  });
+
+  // US 3.3 — Test getLastUpdate() with a BatchLog row
+  it('getLastUpdate returns formatted response when BatchLog exists', async () => {
+    const fakeLog = {
+      id: 1,
+      ranAt: new Date('2025-01-01T12:00:00Z'),
+      tickersProcessed: 2,
+      success: 1,
+      errors: 1,
+      details: [
+        { ticker: 'AAPL', price: 190.5 },
+        { ticker: 'MSFT', error: 'Could not retrieve price' },
+      ],
+    };
+    mockPrismaService.batchLog.findFirst.mockResolvedValueOnce(fakeLog);
+
+    const result = await service.getLastUpdate();
+    expect(result.lastUpdate).toBe('2025-01-01T12:00:00.000Z');
+    expect(result.tickersProcessed).toBe(2);
+    expect(result.details).toHaveLength(2);
   });
 });

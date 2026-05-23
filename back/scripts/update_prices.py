@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-US 3.1 — Batch Stock Price Updater
-------------------------------------
+US 3.1 / US 3.2 — Batch Stock Price Updater
+---------------------------------------------
 Fetches the latest closing price for every unique ticker across all users'
 portfolios and watchlists using yfinance, then upserts the result into the
 StockPrice table.
@@ -10,13 +10,24 @@ Usage:
     python3 update_prices.py
 
 Environment variables:
-    DATABASE_URL  — PostgreSQL connection string (same one used by NestJS/Prisma)
-                    Format: postgres://user:password@host:port/dbname
+    DATABASE_URL       — PostgreSQL connection string (same one used by NestJS/Prisma)
+                         Format: postgres://user:password@host:port/dbname
+    TICKERS_OVERRIDE   — US 3.2: Optional comma-separated list of tickers to process
+                         instead of querying the database. Useful for targeted updates
+                         or CI pipeline testing. Example: "AAPL,MSFT,GOOG"
+    FETCH_TIMEOUT      — US 3.2: Per-ticker fetch timeout in seconds (default: 30).
+                         Applied as the download period guard; yfinance itself does not
+                         expose a direct timeout so we use a thread-based approach.
+
+Exit codes:
+    0  — Success OR per-ticker failures only (individual tickers may have errors)
+    1  — Critical global failure (DB connection lost, unexpected fatal error)
 """
 
 import os
 import sys
 import logging
+import threading
 from datetime import datetime, timezone
 from urllib.parse import urlparse
 
@@ -32,6 +43,33 @@ logging.basicConfig(
     datefmt="%Y-%m-%dT%H:%M:%S",
 )
 logger = logging.getLogger("update_prices")
+
+
+# ---------------------------------------------------------------------------
+# Configuration via environment variables (US 3.2)
+# ---------------------------------------------------------------------------
+def get_config() -> dict:
+    """Read optional configuration from environment variables. US 3.2"""
+    tickers_override_raw = os.environ.get("TICKERS_OVERRIDE", "").strip()
+    tickers_override = (
+        [t.strip().upper() for t in tickers_override_raw.split(",") if t.strip()]
+        if tickers_override_raw
+        else None
+    )
+
+    fetch_timeout = int(os.environ.get("FETCH_TIMEOUT", "30"))  # US 3.2
+
+    if tickers_override:
+        logger.info(
+            "US 3.2 — TICKERS_OVERRIDE is set; will process: %s", tickers_override
+        )
+    if fetch_timeout != 30:
+        logger.info("US 3.2 — FETCH_TIMEOUT set to %d seconds.", fetch_timeout)
+
+    return {
+        "tickers_override": tickers_override,
+        "fetch_timeout": fetch_timeout,
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -89,74 +127,113 @@ def upsert_stock_price(conn, ticker: str, price: float, updated_at: datetime):
 # ---------------------------------------------------------------------------
 # Price fetching
 # ---------------------------------------------------------------------------
-def fetch_prices_batch(tickers: list[str]) -> dict[str, float]:
+def fetch_prices_batch(tickers: list[str], timeout: int) -> dict[str, float]:
     """
-    Try to fetch all prices in a single yf.download() call.
+    Try to fetch all prices in a single yf.download() call with a thread-based timeout.
     Returns a dict {ticker: price} for successfully fetched tickers.
+    US 3.2 — timeout parameter controls how long to wait for the batch download.
     """
     if not tickers:
         return {}
 
     logger.info("Fetching prices in batch for: %s", tickers)
-    try:
-        data = yf.download(tickers, period="1d", auto_adjust=True, progress=False)
-        prices: dict[str, float] = {}
+    result: dict[str, float] = {}
+    exc_holder: list[Exception] = []
 
-        if data.empty:
-            logger.warning("yf.download returned empty DataFrame.")
-            return {}
+    def _download():
+        try:
+            import yfinance as yf  # re-import inside thread for isolation
+            data = yf.download(tickers, period="1d", auto_adjust=True, progress=False)
+            if data.empty:
+                logger.warning("yf.download returned empty DataFrame.")
+                return
 
-        close = data["Close"]
+            close = data["Close"]
 
-        if len(tickers) == 1:
-            ticker = tickers[0]
-            last = close.dropna()
-            if not last.empty:
-                prices[ticker] = float(last.iloc[-1])
-            return prices
+            if len(tickers) == 1:
+                ticker = tickers[0]
+                last = close.dropna()
+                if not last.empty:
+                    result[ticker] = float(last.iloc[-1])
+                return
 
-        for ticker in tickers:
-            if ticker in close.columns:
-                series = close[ticker].dropna()
-                if not series.empty:
-                    prices[ticker] = float(series.iloc[-1])
+            for ticker in tickers:
+                if ticker in close.columns:
+                    series = close[ticker].dropna()
+                    if not series.empty:
+                        result[ticker] = float(series.iloc[-1])
+        except Exception as exc:
+            exc_holder.append(exc)
 
-        return prices
-    except Exception as exc:
-        logger.error("Batch download failed: %s — will fall back per-ticker.", exc)
+    thread = threading.Thread(target=_download, daemon=True)
+    thread.start()
+    thread.join(timeout=timeout)  # US 3.2 — respect FETCH_TIMEOUT
+
+    if thread.is_alive():
+        logger.warning(
+            "Batch download timed out after %d seconds — will fall back per-ticker.", timeout
+        )
         return {}
 
+    if exc_holder:
+        logger.error(
+            "Batch download failed: %s — will fall back per-ticker.", exc_holder[0]
+        )
+        return {}
 
-def fetch_price_single(ticker: str) -> float | None:
+    return result
+
+
+def fetch_price_single(ticker: str, timeout: int) -> float | None:
     """
     Fallback: fetch the last price for a single ticker using fast_info.
     Returns the price as a float, or None on failure.
+    US 3.2 — timeout limits how long we wait for a single ticker.
     """
-    try:
-        info = yf.Ticker(ticker).fast_info
-        price = info.get("lastPrice") or info.get("last_price")
-        if price is not None:
-            return float(price)
-        logger.warning("[%s] fast_info returned no price.", ticker)
+    result: list[float | None] = [None]
+    exc_holder: list[Exception] = []
+
+    def _fetch():
+        try:
+            info = yf.Ticker(ticker).fast_info
+            price = info.get("lastPrice") or info.get("last_price")
+            if price is not None:
+                result[0] = float(price)
+            else:
+                logger.warning("[%s] fast_info returned no price.", ticker)
+        except Exception as exc:
+            exc_holder.append(exc)
+
+    thread = threading.Thread(target=_fetch, daemon=True)
+    thread.start()
+    thread.join(timeout=timeout)  # US 3.2 — respect FETCH_TIMEOUT
+
+    if thread.is_alive():
+        logger.error("[%s] Single fetch timed out after %d seconds.", ticker, timeout)
         return None
-    except Exception as exc:
-        logger.error("[%s] fast_info fetch failed: %s", ticker, exc)
+
+    if exc_holder:
+        logger.error("[%s] fast_info fetch failed: %s", ticker, exc_holder[0])
         return None
+
+    return result[0]
 
 
 # ---------------------------------------------------------------------------
 # Main batch logic
 # ---------------------------------------------------------------------------
-def run_batch(conn, tickers: list[str]) -> tuple[int, int]:
+def run_batch(conn, tickers: list[str], config: dict) -> tuple[int, int]:
     """
     Update prices for all tickers.
     Returns (success_count, error_count).
+    US 3.2 — exit code 0 even if individual tickers fail; only sys.exit(1) on fatal errors.
     """
     if not tickers:
         logger.info("No tickers to process. Exiting.")
         return 0, 0
 
-    batch_prices = fetch_prices_batch(tickers)
+    fetch_timeout = config["fetch_timeout"]
+    batch_prices = fetch_prices_batch(tickers, fetch_timeout)
 
     success_count = 0
     error_count = 0
@@ -169,21 +246,38 @@ def run_batch(conn, tickers: list[str]) -> tuple[int, int]:
             logger.info(
                 "[%s] Not in batch result, trying single fetch fallback…", ticker
             )
-            price = fetch_price_single(ticker)
+            price = fetch_price_single(ticker, fetch_timeout)
 
         if price is None:
+            # US 3.2 — Per-ticker failure: log as ERROR but do NOT exit(1)
             logger.error(
                 "[%s] Could not retrieve price from any source. Skipping.", ticker
+            )
+            # US 3.3 — Emit structured per-ticker detail for NestJS to parse
+            print(
+                f"TICKER_DETAIL: ticker={ticker} status=ERROR error=Could not retrieve price",
+                flush=True,
             )
             error_count += 1
             continue
 
         try:
             upsert_stock_price(conn, ticker, price, now)
-            logger.info("[%s] Updated price: %.4f", ticker, price)
+            # US 3.2 — Clear SUCCESS log per ticker
+            logger.info("[%s] SUCCESS — Updated price: %.4f", ticker, price)
+            # US 3.3 — Emit structured per-ticker detail for NestJS to parse
+            print(
+                f"TICKER_DETAIL: ticker={ticker} status=SUCCESS price={price:.4f}",
+                flush=True,
+            )
             success_count += 1
         except Exception as exc:
-            logger.error("[%s] DB upsert failed: %s. Skipping.", ticker, exc)
+            # US 3.2 — Per-ticker DB failure: log but do NOT exit(1)
+            logger.error("[%s] ERROR — DB upsert failed: %s. Skipping.", ticker, exc)
+            print(
+                f"TICKER_DETAIL: ticker={ticker} status=ERROR error=DB upsert failed: {exc}",
+                flush=True,
+            )
             error_count += 1
 
     return success_count, error_count
@@ -193,23 +287,39 @@ def run_batch(conn, tickers: list[str]) -> tuple[int, int]:
 # Entry point
 # ---------------------------------------------------------------------------
 def main():
-    logger.info("=== Stock price batch update started ===")
+    logger.info("=== Stock price batch update started ===")  # US 3.1
+    config = get_config()  # US 3.2
     conn = None
     try:
         conn = get_db_connection()
-        tickers = get_unique_tickers(conn)
-        success, errors = run_batch(conn, tickers)
+
+        # US 3.2 — Use TICKERS_OVERRIDE if set, otherwise query DB
+        if config["tickers_override"]:
+            tickers = config["tickers_override"]
+            logger.info(
+                "US 3.2 — Using TICKERS_OVERRIDE: %d ticker(s): %s",
+                len(tickers),
+                tickers,
+            )
+        else:
+            tickers = get_unique_tickers(conn)
+
+        success, errors = run_batch(conn, tickers, config)
         logger.info(
             "=== Batch complete — %d updated, %d failed ===", success, errors
         )
+        # US 3.1 — Structured output line parsed by NestJS PricesService
         print(
             f"BATCH_RESULT: tickersProcessed={success + errors} "
             f"success={success} errors={errors}",
             flush=True,
         )
+        # US 3.2 — Exit 0 even if some tickers failed individually
+        sys.exit(0)
     except SystemExit:
         raise
     except Exception as exc:
+        # US 3.2 — Only critical global errors produce a non-zero exit code
         logger.critical("Fatal error during batch: %s", exc, exc_info=True)
         sys.exit(1)
     finally:

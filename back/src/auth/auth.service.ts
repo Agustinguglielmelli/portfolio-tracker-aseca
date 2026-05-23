@@ -42,7 +42,8 @@ export class AuthService {
       hashedPassword,
     );
 
-    const payload = { sub: user.id, email: user.email };
+    // US 3.1 — Include role in JWT payload; new users always receive the USER role
+    const payload = { sub: user.id, email: user.email, role: user.role }; // US 3.1
 
     return {
       message: 'Registro exitoso',
@@ -69,7 +70,8 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
-    const payload = { sub: user.id, email: user.email };
+    // US 3.1 — Include role in JWT payload so AdminGuard can verify it downstream
+    const payload = { sub: user.id, email: user.email, role: user.role }; // US 3.1
 
     return {
       message: 'Login exitoso',

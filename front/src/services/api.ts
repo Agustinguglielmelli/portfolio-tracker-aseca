@@ -48,3 +48,25 @@ export const companiesApi = {
         return res.json();
     }
 };
+
+// US 3.4 — API client for the GET /prices/last-update endpoint
+export const pricesApi = {
+    // US 3.4 — Fetches the last batch update info; requires a valid JWT token
+    getLastUpdate: async () => {
+        const token = localStorage.getItem('token');
+        if (!token) throw new Error('No autenticado');
+
+        const response = await fetch(`${API_URL}/prices/last-update`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || 'Error al obtener la última actualización');
+        }
+        return response.json(); // US 3.4
+    },
+};

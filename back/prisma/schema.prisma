@@ -13,10 +13,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
 model User {
   id        Int             @id @default(autoincrement())
   email     String          @unique
   password  String
+  role      Role            @default(USER)
   portfolio PortfolioItem[]
   watchlist WatchlistItem[]
 }
@@ -40,4 +46,14 @@ model StockPrice {
   ticker    String   @unique
   price     Float
   updatedAt DateTime @updatedAt
+}
+
+// US 3.3 — BatchLog: persists the result of each price update batch run
+model BatchLog {
+  id               Int      @id @default(autoincrement())
+  ranAt            DateTime @default(now()) // US 3.3 — timestamp of the batch execution
+  tickersProcessed Int
+  success          Int
+  errors           Int
+  details          Json // US 3.3 — per-ticker result array: [{ticker, price?, error?}]
 }
