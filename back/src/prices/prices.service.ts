@@ -189,7 +189,7 @@ export class PricesService {
       tickersProcessed: lastLog.tickersProcessed,
       success: lastLog.success,
       errors: lastLog.errors,
-      details: lastLog.details ?? [], // US 3.3
+      details: (lastLog.details ?? []) as unknown as TickerDetail[], // US 3.3
     };
   }
 }
