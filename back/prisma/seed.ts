@@ -9,7 +9,7 @@ async function main() {
 
   // US 3.1 — Check if admin already exists to make seed idempotent
   const existingAdmin = await prisma.user.findUnique({
-    where: { email: 'admin@tracker.com' },
+    where: { email: 'admin@admin.com' },
   });
 
   if (existingAdmin) {
@@ -25,7 +25,7 @@ async function main() {
       },
     });
     console.log(`Created admin user with ID: ${admin.id}`);
-    console.log('Email: admin@tracker.com');
+    console.log('Email: admin@admin.com');
     console.log('Password: admin123');
   }
 
