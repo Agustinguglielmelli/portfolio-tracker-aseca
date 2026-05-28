@@ -19,7 +19,7 @@ services:
       - ./back/.env
     environment:
       DATABASE_URL: postgres://postgres:password@db:5432/backend_db
-    command: sh -c "npx prisma generate && npx prisma db push && npm run start:dev"
+    command: sh -c "npx prisma generate && npx prisma db push && npx prisma db seed && npm run start:dev"
     volumes:
       - ./back:/app
       - /app/node_modules
