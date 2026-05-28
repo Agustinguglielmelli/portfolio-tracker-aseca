@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/compare/v1.0.0...v1.0.1) (2026-05-28)
+
+
+### Bug Fixes
+
+* admin login goes to /admin/dashboard ([751cf5e](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/commit/751cf5ec9fdf7f8cc3b35a29262e3e2200bd254b))
+
 # 1.0.0 (2026-05-28)
 
 
