@@ -1,14 +1,15 @@
 // US 3.4 — Tests E2E del Dashboard: widget de última actualización de precios
 describe('Dashboard - Última actualización de precios (US 3.4)', () => {
     beforeEach(() => {
-        // Simular sesión iniciada inyectando token en localStorage
-        cy.loginByToken('fake-jwt-token');
+        // Simular sesión iniciada inyectando token ADMIN en localStorage
+        const adminJwt = 'header.eyJzdWIiOjEsImVtYWlsIjoiYWRtaW5AdHJhY2tlci5jb20iLCJyb2xlIjoiQURNSU4ifQ==.signature';
+        cy.loginByToken(adminJwt);
 
         // Interceptar GET /prices/last-update con respuesta por defecto (sobreescribible por cada test)
         cy.intercept('GET', '**/prices/last-update', {
             statusCode: 200,
             body: {
-                lastUpdate: '2024-06-01T10:00:00.000Z',
+                lastUpdate: new Date().toISOString(),
                 message: 'OK',
                 tickersProcessed: 0,
                 success: 0,
@@ -17,7 +18,7 @@ describe('Dashboard - Última actualización de precios (US 3.4)', () => {
             },
         }).as('getPricesUpdate');
 
-        cy.visit('/dashboard');
+        cy.visit('/admin/dashboard');
     });
 
     // ── Test 1: Timestamp reciente ────────────────────────────────────────────
@@ -27,7 +28,7 @@ describe('Dashboard - Última actualización de precios (US 3.4)', () => {
         cy.intercept('GET', '**/prices/last-update', {
             statusCode: 200,
             body: {
-                lastUpdate: '2024-06-01T10:00:00.000Z',
+                lastUpdate: new Date().toISOString(),
                 message: 'Precios actualizados correctamente.',
                 tickersProcessed: 2,
                 success: 2,
@@ -39,7 +40,7 @@ describe('Dashboard - Última actualización de precios (US 3.4)', () => {
             },
         }).as('getPricesUpdate');
 
-        cy.visit('/dashboard');
+        cy.visit('/admin/dashboard');
         cy.wait('@getPricesUpdate');
 
         // El widget principal debe ser visible
@@ -77,7 +78,7 @@ describe('Dashboard - Última actualización de precios (US 3.4)', () => {
             },
         }).as('getPricesUpdate');
 
-        cy.visit('/dashboard');
+        cy.visit('/admin/dashboard');
         cy.wait('@getPricesUpdate');
 
         // El banner de "sin precios" debe ser visible // US 3.4
@@ -110,7 +111,7 @@ describe('Dashboard - Última actualización de precios (US 3.4)', () => {
             },
         }).as('getPricesUpdate');
 
-        cy.visit('/dashboard');
+        cy.visit('/admin/dashboard');
         cy.wait('@getPricesUpdate');
 
         // El banner de datos desactualizados debe ser visible // US 3.4
@@ -141,7 +142,7 @@ describe('Dashboard - Última actualización de precios (US 3.4)', () => {
             },
         }).as('getPricesUpdate');
 
-        cy.visit('/dashboard');
+        cy.visit('/admin/dashboard');
         cy.wait('@getPricesUpdate');
 
         // En la primera carga debe mostrarse el banner de "sin precios"
@@ -151,7 +152,7 @@ describe('Dashboard - Última actualización de precios (US 3.4)', () => {
         cy.intercept('GET', '**/prices/last-update', {
             statusCode: 200,
             body: {
-                lastUpdate: '2024-06-01T10:00:00.000Z',
+                lastUpdate: new Date().toISOString(),
                 message: 'Precios actualizados correctamente.',
                 tickersProcessed: 1,
                 success: 1,
@@ -175,7 +176,7 @@ describe('Dashboard - Última actualización de precios (US 3.4)', () => {
         cy.intercept('GET', '**/prices/last-update', {
             statusCode: 200,
             body: {
-                lastUpdate: '2024-06-01T10:00:00.000Z',
+                lastUpdate: new Date().toISOString(),
                 message: 'Precios actualizados con errores.',
                 tickersProcessed: 2,
                 success: 1,
@@ -187,7 +188,7 @@ describe('Dashboard - Última actualización de precios (US 3.4)', () => {
             },
         }).as('getPricesUpdate');
 
-        cy.visit('/dashboard');
+        cy.visit('/admin/dashboard');
         cy.wait('@getPricesUpdate');
 
         // AAPL debe aparecer en la tabla con estado OK
@@ -206,7 +207,7 @@ describe('Dashboard - Última actualización de precios (US 3.4)', () => {
         // Limpiar localStorage para simular usuario no autenticado
         cy.clearLocalStorage();
 
-        cy.visit('/dashboard');
+        cy.visit('/admin/dashboard');
 
         // La ruta protegida debe redirigir a /login
         cy.url().should('include', '/login');

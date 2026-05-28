@@ -69,4 +69,24 @@ export const pricesApi = {
         }
         return response.json(); // US 3.4
     },
+
+    // Trigger batch update manually (requires ADMIN JWT)
+    updatePrices: async () => {
+        const token = localStorage.getItem('token');
+        if (!token) throw new Error('No autenticado');
+
+        const response = await fetch(`${API_URL}/prices/update`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || 'Error al ejecutar la actualización de precios');
+        }
+        return response.json();
+    },
 };
