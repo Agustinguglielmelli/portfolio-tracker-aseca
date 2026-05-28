@@ -70,6 +70,6 @@ describe('JwtAuthGuard', () => {
 
     expect(result).toBe(true);
     const req = context.switchToHttp().getRequest();
-    expect((req as any).user).toEqual(mockPayload);
+    expect(req.user).toEqual(mockPayload);
   });
 });

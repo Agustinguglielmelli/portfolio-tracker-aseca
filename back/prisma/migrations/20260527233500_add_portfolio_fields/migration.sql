@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "PortfolioItem" ADD COLUMN "quantity" DOUBLE PRECISION NOT NULL DEFAULT 0;
+ALTER TABLE "PortfolioItem" ADD COLUMN "operationDate" TIMESTAMP(3) NOT NULL DEFAULT NOW();

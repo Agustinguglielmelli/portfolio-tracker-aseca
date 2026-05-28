@@ -27,10 +27,12 @@ model User {
 }
 
 model PortfolioItem {
-  id     Int    @id @default(autoincrement())
-  userId Int
-  ticker String
-  user   User   @relation(fields: [userId], references: [id])
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  ticker        String
+  quantity      Float
+  operationDate DateTime
+  user          User     @relation(fields: [userId], references: [id])
 }
 
 model WatchlistItem {
