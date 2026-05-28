@@ -7,11 +7,13 @@ import type { JSX } from "react";
 import { CompanySearch } from "./components/CompanySearch.tsx";
 import { CompanyDetail } from "./components/CompanyDetail.tsx";
 import AdminDashboard from './pages/AdminDashboard';
+import { getRedirectPathForToken, getRoleFromToken } from './utils/auth';
 
 // Rutas Públicas: Si TIENE token, lo expulsa al dashboard
 const PublicRoute = ({ children }: { children: JSX.Element }) => {
     const token = localStorage.getItem('token');
-    if (token) return <Navigate to="/dashboard" />;
+    const redirectPath = getRedirectPathForToken(token);
+    if (redirectPath) return <Navigate to={redirectPath} />;
     return children;
 };
 
@@ -24,23 +26,18 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
 const AdminRoute = ({ children }: { children: JSX.Element }) => {
     const token = localStorage.getItem('token');
     if (!token) return <Navigate to="/" />;
-
-    try {
-        // Decode the JWT payload using atob
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        if (payload.role !== 'ADMIN') {
-            return <Navigate to="/dashboard" />;
-        }
-        return children;
-    } catch (e) {
-        return <Navigate to="/" />;
+    const role = getRoleFromToken(token);
+    if (role !== 'ADMIN') {
+        return <Navigate to="/dashboard" />;
     }
+    return children;
 };
 
 const RootRedirect = () => {
     const token = localStorage.getItem('token');
     // Si hay token, vas al dashboard. Si no, al login.
-    return token ? <Navigate to="/dashboard" /> : <Navigate to="/login" />;
+    const redirectPath = getRedirectPathForToken(token);
+    return redirectPath ? <Navigate to={redirectPath} /> : <Navigate to="/login" />;
 };
 
 function App() {

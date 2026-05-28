@@ -8,6 +8,7 @@ import { Title } from '../components/Title';
 import { ErrorMessage } from '../components/ErrorMessage';
 import { Form } from '../components/Form';
 import { AuthFooter } from '../components/AuthFooter';
+import { getRedirectPathForToken } from '../utils/auth';
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -26,8 +27,10 @@ export default function Login() {
 
         try {
             const data = await authApi.login({ email, password });
-            localStorage.setItem('token', data.token || data.access_token);
-            navigate('/dashboard');
+            const token = data.token || data.access_token;
+            localStorage.setItem('token', token);
+            const redirectPath = getRedirectPathForToken(token) || '/dashboard';
+            navigate(redirectPath);
         } catch (err) {
             if (err instanceof Error) {
                 setError('Credenciales inválidas');
