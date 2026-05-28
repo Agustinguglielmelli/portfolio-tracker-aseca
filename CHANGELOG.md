@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/compare/v1.0.1...v1.1.0) (2026-05-28)
+
+
+### Features
+
+* add PricesStatusBadge component to display price update status in Dashboard ([e2d384c](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/commit/e2d384cb2877c78a434455d43be4ef21515eebf6))
+
 ## [1.0.1](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/compare/v1.0.0...v1.0.1) (2026-05-28)
 
 
