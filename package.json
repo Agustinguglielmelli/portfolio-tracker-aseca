@@ -1,4 +1,7 @@
 {
+  "name": "portfolio-tracker-aseca",
+  "version": "1.0.0",
+  "private": true,
   "devDependencies": {
     "@commitlint/cli": "^21.0.1",
     "@commitlint/config-conventional": "^21.0.1",
