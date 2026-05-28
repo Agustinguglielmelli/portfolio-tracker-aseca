@@ -1,1 +1,4 @@
+# Ignorar husky si se está ejecutando desde un CI (ej. Github Actions)
+if [ "$CI" = "true" ]; then exit 0; fi
+
 cd back && npm run format && git add .
