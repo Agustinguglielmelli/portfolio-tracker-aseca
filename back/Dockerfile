@@ -2,8 +2,8 @@ FROM node:20-alpine
 WORKDIR /app
 COPY package*.json ./
 
-# Instalar openssl (para Prisma), python3, pip y herramientas de compilación para psycopg2
-RUN apk add --no-cache openssl python3 py3-pip make gcc g++ musl-dev postgresql-dev
+# Instalar openssl (para Prisma), python3, pip, tzdata (para yfinance) y herramientas de compilación para psycopg2
+RUN apk add --no-cache openssl python3 py3-pip make gcc g++ musl-dev postgresql-dev tzdata
 
 RUN npm install
 COPY . .
