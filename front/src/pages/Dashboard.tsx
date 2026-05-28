@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-
+import { PricesStatusBadge } from '../components/PricesStatusBadge';
 export default function Dashboard() {
     const navigate = useNavigate();
 
@@ -29,7 +29,10 @@ export default function Dashboard() {
                     </button>
                 </div>
                 <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-6 mb-6">
-                    <h2 className="text-xl font-semibold text-slate-100 mb-2">Bienvenido al Dashboard</h2>
+                    <div className="flex items-center justify-between mb-2">
+                        <h2 className="text-xl font-semibold text-slate-100">Bienvenido al Dashboard</h2>
+                        <PricesStatusBadge />
+                    </div>
                     <p className="text-slate-400 text-sm">Aquí verás el resumen de tu portafolio.</p>
                 </div>
             </div>
