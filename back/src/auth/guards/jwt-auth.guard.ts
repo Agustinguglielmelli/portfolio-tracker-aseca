@@ -1,4 +1,3 @@
-// US 3.3 — JWT Auth Guard: validates JWT token for authenticated endpoints
 import {
   CanActivate,
   ExecutionContext,
@@ -8,7 +7,6 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 
-// US 3.3 — Payload interface for decoded JWT tokens
 export interface JwtPayload {
   sub: number;
   email: string;
@@ -17,7 +15,6 @@ export interface JwtPayload {
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
-  // US 3.3
   constructor(private readonly jwtService: JwtService) {}
 
   canActivate(context: ExecutionContext): boolean {
@@ -31,9 +28,8 @@ export class JwtAuthGuard implements CanActivate {
 
     try {
       const payload = this.jwtService.verify<JwtPayload>(token);
-      // US 3.1 — Default role to USER for tokens missing the role claim (backward compat)
       if (!payload.role) {
-        payload.role = 'USER'; // US 3.1
+        payload.role = 'USER';
       }
       (request as any).user = payload;
       return true;

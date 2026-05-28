@@ -24,7 +24,7 @@ import request from 'supertest';
 import { AdminOrApiKeyGuard } from '../../src/prices/admin-or-api-key.guard';
 import { PricesController } from '../../src/prices/prices.controller';
 import { PricesService } from '../../src/prices/prices.service';
-import { JwtAuthGuard } from '../../src/auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../../src/auth/guards/jwt-auth.guard';
 
 // ---------------------------------------------------------------------------
 // Constants shared across tests

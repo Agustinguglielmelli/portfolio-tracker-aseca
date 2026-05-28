@@ -5,9 +5,9 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
-import { AuthRepository } from './auth.repository';
+import { RegisterDto } from '../dto/register.dto';
+import { LoginDto } from '../dto/login.dto';
+import { AuthRepository } from '../repositories/auth.repository';
 
 @Injectable()
 export class AuthService {
@@ -42,8 +42,7 @@ export class AuthService {
       hashedPassword,
     );
 
-    // US 3.1 — Include role in JWT payload; new users always receive the USER role
-    const payload = { sub: user.id, email: user.email, role: user.role }; // US 3.1
+    const payload = { sub: user.id, email: user.email, role: user.role };
 
     return {
       message: 'Registro exitoso',
@@ -70,8 +69,7 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
-    // US 3.1 — Include role in JWT payload so AdminGuard can verify it downstream
-    const payload = { sub: user.id, email: user.email, role: user.role }; // US 3.1
+    const payload = { sub: user.id, email: user.email, role: user.role };
 
     return {
       message: 'Login exitoso',

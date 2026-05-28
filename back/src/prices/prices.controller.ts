@@ -7,7 +7,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AdminOrApiKeyGuard } from './admin-or-api-key.guard'; // US 3.1
-import { JwtAuthGuard } from '../auth/jwt-auth.guard'; // US 3.3
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'; // US 3.3
 import {
   BatchResult,
   LastUpdateResponse,

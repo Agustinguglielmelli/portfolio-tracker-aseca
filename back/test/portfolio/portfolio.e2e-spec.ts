@@ -5,7 +5,7 @@ import request from 'supertest';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../src/prisma/prisma.service';
-import { JwtAuthGuard } from '../../src/auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../../src/auth/guards/jwt-auth.guard';
 import { PortfolioController } from '../../src/portfolio/portfolio.controller';
 import { PortfolioService } from '../../src/portfolio/portfolio.service';
 import { PortfolioRepository } from '../../src/portfolio/portfolio.repository';

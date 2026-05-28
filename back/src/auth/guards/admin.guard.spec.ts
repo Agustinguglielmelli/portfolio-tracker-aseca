@@ -4,8 +4,8 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AdminGuard } from '../../src/auth/admin.guard';
-import { JwtAuthGuard } from '../../src/auth/jwt-auth.guard';
+import { AdminGuard } from './admin.guard';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 describe('AdminGuard', () => {
   let guard: AdminGuard;

@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import { AuthRepository } from './auth.repository';
+import { AuthController } from './controllers/auth.controller';
+import { AuthService } from './services/auth.service';
+import { AuthRepository } from './repositories/auth.repository';
 import { PrismaModule } from '../prisma/prisma.module';
-import { JwtAuthGuard } from './jwt-auth.guard';
-import { AdminGuard } from './admin.guard'; // US 3.1
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { AdminGuard } from './guards/admin.guard';
 
 @Module({
   imports: [
@@ -20,7 +20,7 @@ import { AdminGuard } from './admin.guard'; // US 3.1
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, AuthRepository, JwtAuthGuard, AdminGuard], // US 3.1
-  exports: [JwtAuthGuard, AdminGuard, JwtModule], // US 3.1 — Export guards so PricesModule can use them
+  providers: [AuthService, AuthRepository, JwtAuthGuard, AdminGuard],
+  exports: [JwtAuthGuard, AdminGuard, JwtModule],
 })
 export class AuthModule {}
