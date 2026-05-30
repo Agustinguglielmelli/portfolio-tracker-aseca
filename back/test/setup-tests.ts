@@ -1,12 +1,7 @@
-import path from 'node:path';
-import { config } from 'dotenv';
+import dotenv from 'dotenv';
 
-config({ path: path.resolve(__dirname, '..', '.env') });
+dotenv.config({ path: '.env.test' });
 
-if (!process.env.DATABASE_TEST_URL) {
-  throw new Error(
-    'DATABASE_TEST_URL must be defined to run integration/e2e tests safely.',
-  );
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL must be defined for tests');
 }
-
-process.env.DATABASE_URL = process.env.DATABASE_TEST_URL;
