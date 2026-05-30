@@ -23,7 +23,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { AdminOrApiKeyGuard } from '../../src/prices/admin-or-api-key.guard';
 import { PricesController } from '../../src/prices/prices.controller';
-import { PricesService } from '../../src/prices/prices.service';
+import { PricesService } from '../../src/prices/service/prices.service';
 import { JwtAuthGuard } from '../../src/auth/guards/jwt-auth.guard';
 
 // ---------------------------------------------------------------------------

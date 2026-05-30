@@ -7,8 +7,8 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../src/prisma/prisma.service';
 import { JwtAuthGuard } from '../../src/auth/guards/jwt-auth.guard';
 import { PortfolioController } from '../../src/portfolio/portfolio.controller';
-import { PortfolioService } from '../../src/portfolio/portfolio.service';
-import { PortfolioRepository } from '../../src/portfolio/portfolio.repository';
+import { PortfolioService } from '../../src/portfolio/service/portfolio.service';
+import { PortfolioRepository } from '../../src/portfolio/repository/portfolio.repository';
 
 const TEST_SECRET = 'test-secret';
 

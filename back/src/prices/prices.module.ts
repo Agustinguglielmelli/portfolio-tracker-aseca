@@ -4,7 +4,7 @@ import { AuthModule } from '../auth/auth.module'; // US 3.1 — Provides AdminGu
 import { PrismaModule } from '../prisma/prisma.module'; // US 3.3 — Provides PrismaService for BatchLog
 import { AdminOrApiKeyGuard } from './admin-or-api-key.guard'; // US 3.1 / US 3.2
 import { PricesController } from './prices.controller';
-import { PricesService } from './prices.service';
+import { PricesService } from './service/prices.service';
 
 @Module({
   imports: [

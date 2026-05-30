@@ -12,7 +12,7 @@ import {
   BatchResult,
   LastUpdateResponse,
   PricesService,
-} from './prices.service';
+} from './service/prices.service';
 
 @Controller('prices')
 export class PricesController {

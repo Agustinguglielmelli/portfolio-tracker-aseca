@@ -11,7 +11,7 @@ import {
   BatchResult,
   PricesService,
   SpawnFn,
-} from '../../src/prices/prices.service';
+} from '../../src/prices/service/prices.service';
 import { PrismaService } from '../../src/prisma/prisma.service';
 
 // ---------------------------------------------------------------------------

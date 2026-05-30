@@ -9,7 +9,7 @@ import {
   ChildProcessWithoutNullStreams,
 } from 'child_process';
 import { resolve } from 'path';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 
 export interface BatchResult {
   tickersProcessed: number;

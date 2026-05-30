@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from './auth.service';
-import { AuthRepository } from '../repositories/auth.repository';
+import { AuthService } from '../../../src/auth/services/auth.service';
+import { AuthRepository } from '../../../src/auth/repository/auth.repository';
 import { JwtService } from '@nestjs/jwt';
-import { RegisterDto } from '../dto/register.dto';
+import { RegisterDto } from '../../../src/auth/dto/register.dto';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 

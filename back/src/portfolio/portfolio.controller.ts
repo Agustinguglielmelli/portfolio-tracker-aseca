@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { JwtAuthGuard, JwtPayload } from '../auth/guards/jwt-auth.guard';
-import { PortfolioService } from './portfolio.service';
+import { PortfolioService } from './service/portfolio.service';
 import { CreatePortfolioItemDto } from './dto/create-portfolio-item.dto';
 
 @Controller('portfolio')

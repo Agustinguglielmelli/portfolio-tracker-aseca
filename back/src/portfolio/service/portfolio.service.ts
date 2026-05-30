@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { PortfolioRepository } from './portfolio.repository';
-import { CreatePortfolioItemDto } from './dto/create-portfolio-item.dto';
+import { PortfolioRepository } from '../repository/portfolio.repository';
+import { CreatePortfolioItemDto } from '../dto/create-portfolio-item.dto';
 
 @Injectable()
 export class PortfolioService {
