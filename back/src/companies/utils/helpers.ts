@@ -57,9 +57,8 @@ export function getLatestValue(gaap: GaapData, concept: string): number | null {
   if (!unitData || unitData.length === 0) return null;
 
   const reports = unitData
-    .filter((r) => r.frame?.length === 6)
+    .filter((r) => r.end && r.val != null)
     .sort((a, b) => new Date(b.end).getTime() - new Date(a.end).getTime());
-
   return reports[0]?.val ?? null;
 }
 
