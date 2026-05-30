@@ -2,8 +2,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { AppModule } from '../../src/app.module';
-import { CompaniesRepository } from '../../src/companies/repository/companies.repository';
+import { AppModule } from '../../../src/app.module';
+import { CompaniesRepository } from '../../../src/companies/repository/companies.repository';
 import { NotFoundException } from '@nestjs/common';
 
 describe('CompaniesController (e2e)', () => {
