@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 
 dotenv.config({
   path: path.resolve(__dirname, '..', '.env.test'),
-  override: true,
+  override: !process.env.CI,
 });
 
 if (!process.env.DATABASE_URL) {
