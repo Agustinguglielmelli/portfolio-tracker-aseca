@@ -16,6 +16,7 @@
     "test": "jest --config ./test/jest.unit.json",
     "test:cov": "jest --config ./test/jest.unit.json --coverage",
     "test:watch": "jest --config ./test/jest.unit.json --watch",
+    "test:integration:setup": "prisma db push --url postgres://postgres:password@localhost:5433/integration_test_db",
     "test:integration": "jest --config ./test/jest.integration.json",
     "test:e2e": "jest --config ./test/jest.e2e.json",
     "test:all": "npm run test && npm run test:integration && npm run test:e2e",
