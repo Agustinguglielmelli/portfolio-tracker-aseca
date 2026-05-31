@@ -17,7 +17,19 @@ const config: Config = {
       displayName: 'unit:test',
       moduleFileExtensions: ['js', 'json', 'ts'],
       rootDir: 'test',
-      testRegex: '.*\\.spec\\.ts$',
+      testRegex: '^(?!.*\\/integration\\/)(?!.*\\.e2e-spec\\.ts$).*\\.spec\\.ts$',
+      transform: {
+        '^.+\\.(t|j)s$': 'ts-jest',
+      },
+      testEnvironment: 'node',
+    },
+    {
+      displayName: 'integration',
+      moduleFileExtensions: ['js', 'json', 'ts'],
+      rootDir: 'test',
+      testRegex: '.*/integration/.*\\.spec\\.ts$',
+      globalSetup: '<rootDir>/global-setup.ts',
+      setupFiles: ['<rootDir>/load-env.ts'],
       transform: {
         '^.+\\.(t|j)s$': 'ts-jest',
       },
@@ -28,6 +40,8 @@ const config: Config = {
       moduleFileExtensions: ['js', 'json', 'ts'],
       rootDir: 'test',
       testRegex: '.*\\.e2e-spec\\.ts$',
+      globalSetup: '<rootDir>/global-setup.ts',
+      setupFiles: ['<rootDir>/load-env.ts'],
       transform: {
         '^.+\\.(t|j)s$': 'ts-jest',
       },
