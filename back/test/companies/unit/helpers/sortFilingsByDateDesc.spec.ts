@@ -31,4 +31,21 @@ describe('sortFilingsByDateDesc', () => {
       '2022-01-01',
     ]);
   });
+  it('should handle equal dates', () => {
+    const input = [
+      { date: '2024-01-01', type: '10-K', accessionNumber: '1' },
+      { date: '2024-01-01', type: '10-Q', accessionNumber: '2' },
+    ];
+    const result = sortFilingsByDateDesc(input as any);
+    expect(result).toHaveLength(2);
+  });
+  it('should not mutate the original array', () => {
+    const input = [
+      { date: '2023-01-01', type: '10-K', accessionNumber: '1' },
+      { date: '2024-01-01', type: '10-Q', accessionNumber: '2' },
+    ];
+    const original = [...input];
+    sortFilingsByDateDesc(input as any);
+    expect(input[0].date).toBe(original[0].date); // falla — el array fue mutado
+  });
 });

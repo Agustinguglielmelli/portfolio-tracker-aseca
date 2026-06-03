@@ -81,7 +81,7 @@ export function mapFilings(recent: FilingRaw): Filing[] {
 }
 
 export function sortFilingsByDateDesc(filings: Filing[]): Filing[] {
-  return filings.sort(
+  return [...filings].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
   );
 }
