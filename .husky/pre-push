@@ -1,0 +1,20 @@
+#!/bin/sh
+
+MIN_COVERAGE=80
+
+if [ "$CI" = "true" ]; then exit 0; fi
+
+echo "=========================================================="
+echo "🛡️  Ejecutando tests del backend y verificando cobertura mínima ($MIN_COVERAGE%)..."
+echo "=========================================================="
+
+cd back && npm run test:cov -- --coverageThreshold="{\"global\":{\"statements\":$MIN_COVERAGE,\"branches\":$MIN_COVERAGE,\"functions\":$MIN_COVERAGE,\"lines\":$MIN_COVERAGE}}"
+
+if [ $? -ne 0 ]; then
+  echo "❌ Error: Los tests fallaron o no se alcanzó el % mínimo de coverage ($MIN_COVERAGE%)."
+  echo "Por favor, soluciona los errores o añade más tests antes de pushear."
+  exit 1
+fi
+
+echo "✅ Todo correcto. Permitiendo el push..."
+exit 0
