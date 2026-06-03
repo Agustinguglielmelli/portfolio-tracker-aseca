@@ -8,6 +8,7 @@ export default async function globalSetup() {
     ['prisma', 'db', 'push', '--url', process.env.DATABASE_URL as string],
     {
       stdio: 'inherit',
+      shell: true,
     },
   );
 }
