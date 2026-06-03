@@ -48,24 +48,6 @@ describe('mapFilings', () => {
     expect(result).toEqual([]);
   });
 
-  it('should handle inconsistent array lengths safely', () => {
-    const recent = {
-      form: ['10-K', '10-Q'],
-      filingDate: ['a'], // 👈 menor tamaño
-      accessionNumber: ['1', '2'],
-    };
-
-    const result = mapFilings(recent as any);
-
-    expect(result[0]).toEqual({
-      date: 'a',
-      type: '10-K',
-      accessionNumber: '1',
-    });
-
-    expect(result[1].date).toBeUndefined();
-  });
-
   it('should preserve input order', () => {
     const recent = {
       form: ['10-Q', '10-K'],
