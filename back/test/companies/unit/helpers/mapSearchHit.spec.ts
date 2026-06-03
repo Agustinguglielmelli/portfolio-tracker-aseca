@@ -56,6 +56,8 @@ describe('mapSearchHit', () => {
     const result = mapSearchHit(hit);
 
     expect(result.ticker).toBeNull();
+    expect(result.cik).toEqual('0001');
+    expect(result.name).toBe('Apple Inc');
   });
   it('should handle empty ciks array', () => {
     const hit = {
@@ -68,5 +70,29 @@ describe('mapSearchHit', () => {
     const result = mapSearchHit(hit);
 
     expect(result.cik).toBeNull();
+  });
+  it('should handle empty disply_names array', () => {
+    const hit = {
+      _source: {
+        display_names: [],
+        ciks: ['0001'],
+      },
+    };
+    const result = mapSearchHit(hit);
+    expect(result.name).toBe('Desconocido');
+    expect(result.ticker).toBeNull();
+    expect(result.cik).toBe('0001');
+  });
+  it('should trim whitespace from name', () => {
+    const hit = {
+      _source: {
+        display_names: ['Apple Inc  (AAPL) (CIK 0001)'],
+        ciks: ['0001'],
+      },
+    };
+    const result = mapSearchHit(hit);
+    expect(result.name).toBe('Apple Inc'); // sin espacios extra
+    expect(result.ticker).toEqual('AAPL');
+    expect(result.cik).toEqual('0001');
   });
 });
