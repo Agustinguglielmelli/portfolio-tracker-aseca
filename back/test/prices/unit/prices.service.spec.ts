@@ -14,9 +14,6 @@ import {
 } from '../../src/prices/service/prices.service';
 import { PrismaService } from '../../src/prisma/prisma.service';
 
-// ---------------------------------------------------------------------------
-// Helpers to build a fake child process
-// ---------------------------------------------------------------------------
 interface FakeChildConfig {
   stdoutLines?: string[];
   stderrLines?: string[];
@@ -32,12 +29,12 @@ function makeFakeChild(config: FakeChildConfig): any {
     for (const line of config.stdoutLines ?? []) {
       child.stdout.push(line + '\n');
     }
-    child.stdout.push(null); // EOF
+    child.stdout.push(null);
 
     for (const line of config.stderrLines ?? []) {
       child.stderr.push(line + '\n');
     }
-    child.stderr.push(null); // EOF
+    child.stderr.push(null);
 
     child.emit('close', config.exitCode ?? 0);
   });
@@ -45,10 +42,6 @@ function makeFakeChild(config: FakeChildConfig): any {
   return child;
 }
 
-// ---------------------------------------------------------------------------
-// Mock PrismaService — US 3.3: PricesService now depends on PrismaService
-// to persist BatchLog entries. We mock it so unit tests remain DB-free.
-// ---------------------------------------------------------------------------
 const mockPrismaService = {
   batchLog: {
     create: jest.fn().mockResolvedValue({}),
@@ -56,9 +49,6 @@ const mockPrismaService = {
   },
 };
 
-// ---------------------------------------------------------------------------
-// Tests
-// ---------------------------------------------------------------------------
 describe('PricesService', () => {
   let service: PricesService;
 
@@ -67,7 +57,6 @@ describe('PricesService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PricesService,
-        // US 3.3 — Override PrismaService with a mock so tests remain DB-free
         {
           provide: PrismaService,
           useValue: mockPrismaService,
@@ -90,8 +79,6 @@ describe('PricesService', () => {
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
-
-  // US 3.3 — Test that TICKER_DETAIL lines are parsed and stored in BatchLog
   it('resolves with parsed BatchResult and stores TICKER_DETAIL in BatchLog', async () => {
     const fakeChild = makeFakeChild({
       stdoutLines: [
@@ -116,7 +103,6 @@ describe('PricesService', () => {
       success: 1,
       errors: 1,
     });
-    // US 3.3 — Verify BatchLog was persisted with parsed TICKER_DETAIL array
     expect(mockPrismaService.batchLog.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
@@ -167,16 +153,12 @@ describe('PricesService', () => {
 
     await expect(promise).rejects.toThrow(ServiceUnavailableException);
   });
-
-  // US 3.3 — Test getLastUpdate() empty state
   it('getLastUpdate returns empty-state response when no BatchLog exists', async () => {
     mockPrismaService.batchLog.findFirst.mockResolvedValueOnce(null);
     const result = await service.getLastUpdate();
     expect(result.lastUpdate).toBeNull();
     expect(result.details).toEqual([]);
   });
-
-  // US 3.3 — Test getLastUpdate() with a BatchLog row
   it('getLastUpdate returns formatted response when BatchLog exists', async () => {
     const fakeLog = {
       id: 1,

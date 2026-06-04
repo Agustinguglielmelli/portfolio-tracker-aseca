@@ -1,28 +1,4 @@
 #!/usr/bin/env python3
-"""
-US 3.1 / US 3.2 — Batch Stock Price Updater
----------------------------------------------
-Fetches the latest closing price for every unique ticker across all users'
-portfolios and watchlists using yfinance, then upserts the result into the
-StockPrice table.
-
-Usage:
-    python3 update_prices.py
-
-Environment variables:
-    DATABASE_URL       — PostgreSQL connection string (same one used by NestJS/Prisma)
-                         Format: postgres://user:password@host:port/dbname
-    TICKERS_OVERRIDE   — US 3.2: Optional comma-separated list of tickers to process
-                         instead of querying the database. Useful for targeted updates
-                         or CI pipeline testing. Example: "AAPL,MSFT,GOOG"
-    FETCH_TIMEOUT      — US 3.2: Per-ticker fetch timeout in seconds (default: 30).
-                         Applied as the download period guard; yfinance itself does not
-                         expose a direct timeout so we use a thread-based approach.
-
-Exit codes:
-    0  — Success OR per-ticker failures only (individual tickers may have errors)
-    1  — Critical global failure (DB connection lost, unexpected fatal error)
-"""
 
 import os
 import sys
