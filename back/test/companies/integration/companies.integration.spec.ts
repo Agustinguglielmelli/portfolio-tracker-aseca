@@ -8,7 +8,7 @@ import { AppModule } from '../../../src/app.module';
 // con una API externa (SEC EDGAR) y sus descargas masivas iniciales toman su tiempo
 jest.setTimeout(60000);
 
-describe('Companies Integration (EDGAR API E2E)', () => {
+describe('Companies Integration', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
