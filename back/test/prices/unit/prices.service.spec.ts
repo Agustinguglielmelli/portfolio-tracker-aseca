@@ -11,8 +11,8 @@ import {
   BatchResult,
   PricesService,
   SpawnFn,
-} from '../../src/prices/service/prices.service';
-import { PrismaService } from '../../src/prisma/prisma.service';
+} from '../../../src/prices/service/prices.service';
+import { PrismaService } from '../../../src/prisma/prisma.service';
 
 interface FakeChildConfig {
   stdoutLines?: string[];
