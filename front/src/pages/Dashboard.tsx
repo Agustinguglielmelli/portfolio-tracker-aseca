@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { PricesStatusBadge } from '../components/PricesStatusBadge';
+import { Navbar } from '../components/Navbar';
+
 export default function Dashboard() {
     const navigate = useNavigate();
 
@@ -10,14 +12,12 @@ export default function Dashboard() {
 
     return (
         /* <!-- US 3.4 --> */
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-6">
-            {/* Header */}
-            <div className="max-w-4xl mx-auto">
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 text-white">
+            <Navbar />
+            <div className="max-w-4xl mx-auto px-4 py-8">
                 <div className="flex items-center justify-between mb-8">
                     <div>
-                        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
-                            Portfolio Tracker
-                        </h1>
+                        <h1 className="text-2xl font-bold text-white">Portfolio</h1>
                         <p className="text-slate-400 text-sm mt-1">Panel de control</p>
                     </div>
                     <button

@@ -7,6 +7,7 @@ import type { JSX } from "react";
 import { CompanySearch } from "./components/CompanySearch.tsx";
 import { CompanyDetail } from "./components/CompanyDetail.tsx";
 import AdminDashboard from './pages/AdminDashboard';
+import Watchlist from './pages/Watchlist';
 import { getRedirectPathForToken, getRoleFromToken } from './utils/auth';
 
 // Rutas Públicas: Si TIENE token, lo expulsa al dashboard
@@ -86,6 +87,15 @@ function App() {
                     element={
                         <ProtectedRoute>
                             <CompanyDetail />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/watchlist"
+                    element={
+                        <ProtectedRoute>
+                            <Watchlist />
                         </ProtectedRoute>
                     }
                 />

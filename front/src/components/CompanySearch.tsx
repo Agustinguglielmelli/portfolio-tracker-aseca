@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { companiesApi } from '../services/api';
+import { Navbar } from './Navbar';
 
 interface CompanySearchResult {
     cik: string;
@@ -28,8 +29,9 @@ export const CompanySearch = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 px-4 py-8">
-            <div className="max-w-2xl mx-auto">
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900">
+            <Navbar />
+            <div className="max-w-2xl mx-auto px-4 py-8">
                 <h1 className="text-2xl font-bold text-white mb-6">Buscar empresa</h1>
 
                 <form onSubmit={handleSearch} className="flex gap-2 mb-6">

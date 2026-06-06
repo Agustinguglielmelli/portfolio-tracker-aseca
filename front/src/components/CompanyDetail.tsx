@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { companiesApi } from '../services/api';
+import { Navbar } from './Navbar';
 import {
     LineChart,
     Line,
@@ -125,8 +126,9 @@ export const CompanyDetail = () => {
     const chartData = formatChartData(history);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 px-4 py-8">
-            <div className="max-w-5xl mx-auto space-y-8">
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900">
+            <Navbar />
+            <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
                 <header>
                     <h1 className="text-3xl font-bold text-white">{ticker}</h1>
                     <p className="text-slate-400 text-sm mt-1">Datos financieros</p>
