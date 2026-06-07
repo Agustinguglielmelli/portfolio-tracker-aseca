@@ -80,24 +80,6 @@ export class PortfolioService {
 
     return positions.filter((p): p is PortfolioPosition => p !== null);
   }
-  async deleteTransaction(
-    userId: number,
-    transactionId: number,
-  ): Promise<void> {
-    const tx = await this.findTransactionOrThrow(transactionId);
-    this.validateOwnership(tx, userId);
-
-    if (tx.type === TransactionType.BUY) {
-      await this.validateFifoAfterBuyRemoval(
-        // no puedo borrar un buy y dejar su sell porque es inconsistente
-        userId,
-        tx.ticker,
-        transactionId,
-      );
-    }
-
-    await this.portfolioRepository.deleteTransaction(transactionId);
-  }
 
   private async findTransactionOrThrow(
     transactionId: number,

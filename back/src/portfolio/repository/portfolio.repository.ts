@@ -36,10 +36,6 @@ export class PortfolioRepository {
     return this.prisma.portfolioTransaction.findUnique({ where: { id } });
   }
 
-  deleteTransaction(id: number) {
-    return this.prisma.portfolioTransaction.delete({ where: { id } });
-  }
-
   getStockPrice(ticker: string) {
     return this.prisma.stockPrice.findUnique({ where: { ticker } });
   }

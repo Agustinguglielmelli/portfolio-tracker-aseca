@@ -41,14 +41,6 @@ export class PortfolioController {
     return this.portfolioService.getAllTransactions(this.getUserId(req));
   }
 
-  @Delete('transactions/:id')
-  deleteTransaction(
-    @Param('id', ParseIntPipe) id: number,
-    @Req() req: Request,
-  ) {
-    return this.portfolioService.deleteTransaction(this.getUserId(req), id);
-  }
-
   private getUserId(req: Request): number {
     const user = (req as any).user as JwtPayload | undefined;
     if (!user?.sub)
