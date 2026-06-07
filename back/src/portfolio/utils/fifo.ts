@@ -1,4 +1,4 @@
-import { Transaction, TransactionType } from '@prisma/client';
+import { PortfolioTransaction, TransactionType } from '@prisma/client';
 
 export interface FifoLot {
   transactionId: number;
@@ -7,7 +7,7 @@ export interface FifoLot {
   date: Date;
 }
 
-export function applyFifo(transactions: Transaction[]): FifoLot[] {
+export function applyFifo(transactions: PortfolioTransaction[]): FifoLot[] {
   const buys = transactions
     .filter((t) => t.type === TransactionType.BUY)
     .sort((a, b) => a.date.getTime() - b.date.getTime());

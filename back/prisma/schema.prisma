@@ -18,11 +18,11 @@ enum Role {
 }
 
 model User {
-  id           Int             @id @default(autoincrement())
-  email        String          @unique
+  id           Int                    @id @default(autoincrement())
+  email        String                 @unique
   password     String
-  role         Role            @default(USER)
-  transactions Transaction[]
+  role         Role                   @default(USER)
+  transactions PortfolioTransaction[]
   watchlist    WatchlistItem[]
 }
 
@@ -31,7 +31,7 @@ enum TransactionType {
   SELL
 }
 
-model Transaction {
+model PortfolioTransaction {
   id        Int             @id @default(autoincrement())
   userId    Int
   ticker    String
@@ -41,6 +41,8 @@ model Transaction {
   date      DateTime
   createdAt DateTime        @default(now())
   user      User            @relation(fields: [userId], references: [id])
+
+  @@map("transactions")
 }
 
 model WatchlistItem {
