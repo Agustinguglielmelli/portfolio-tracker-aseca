@@ -1,4 +1,4 @@
-import { applyFifo } from '../../../../src/portfolio/utils/fifo';
+import { applyFifo } from '../../../../src/portfolio/utils/helpers';
 import { TransactionType } from '@prisma/client';
 
 const makeBuy = (

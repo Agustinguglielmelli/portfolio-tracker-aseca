@@ -41,3 +41,11 @@ export function applyFifo(transactions: PortfolioTransaction[]): FifoLot[] {
 
   return lots.filter((lot) => lot.quantity > 0);
 }
+
+export function getTotalShares(lots: FifoLot[]): number {
+  return lots.reduce((sum, lot) => sum + lot.quantity, 0);
+}
+
+export function getTotalCost(lots: FifoLot[]): number {
+  return lots.reduce((sum, lot) => sum + lot.quantity * lot.priceAtOp, 0);
+}

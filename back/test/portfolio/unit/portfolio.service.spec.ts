@@ -1,5 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { TransactionType } from '@prisma/client';
 import { PortfolioService } from '../../../src/portfolio/service/portfolio.service';
 import { PortfolioRepository } from '../../../src/portfolio/repository/portfolio.repository';
@@ -196,6 +200,89 @@ describe('PortfolioService', () => {
       expect(result[0].currentPrice).toBeNull();
       expect(result[0].pnl).toBeNull();
       expect(result[0].pnlPct).toBeNull();
+    });
+  });
+
+  describe('deleteTransaction', () => {
+    it('lanza NotFoundException si la transacción no existe', async () => {
+      mockRepo.findTransactionById.mockResolvedValue(null);
+
+      await expect(service.deleteTransaction(1, 99)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('lanza ForbiddenException si la transacción pertenece a otro usuario', async () => {
+      mockRepo.findTransactionById.mockResolvedValue(
+        makeTx(1, TransactionType.BUY, 10, 100, '2026-01-01', 'AAPL', 2),
+      );
+
+      await expect(service.deleteTransaction(1, 1)).rejects.toThrow(
+        ForbiddenException,
+      );
+    });
+
+    it('lanza BadRequestException si eliminar el BUY deja un sell sin respaldo', async () => {
+      mockRepo.findTransactionById.mockResolvedValue(
+        makeTx(1, TransactionType.BUY, 10, 100, '2026-01-01'),
+      );
+      mockRepo.getTransactionsByUserAndTicker.mockResolvedValue([
+        makeTx(1, TransactionType.BUY, 10, 100, '2026-01-01'),
+        makeTx(2, TransactionType.SELL, 10, 150, '2026-02-01'),
+      ]);
+
+      await expect(service.deleteTransaction(1, 1)).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('eliminar un SELL siempre es válido', async () => {
+      mockRepo.findTransactionById.mockResolvedValue(
+        makeTx(2, TransactionType.SELL, 10, 150, '2026-02-01'),
+      );
+      mockRepo.getTransactionsByUserAndTicker.mockResolvedValue([
+        makeTx(1, TransactionType.BUY, 10, 100, '2026-01-01'),
+        makeTx(2, TransactionType.SELL, 10, 150, '2026-02-01'),
+      ]);
+
+      await service.deleteTransaction(1, 2);
+
+      expect(mockRepo.deleteTransaction).toHaveBeenCalledWith(2);
+    });
+
+    it('elimina un BUY correctamente cuando no deja sells sin respaldo', async () => {
+      mockRepo.findTransactionById.mockResolvedValue(
+        makeTx(1, TransactionType.BUY, 10, 100, '2026-01-01'),
+      );
+      mockRepo.getTransactionsByUserAndTicker.mockResolvedValue([
+        makeTx(1, TransactionType.BUY, 10, 100, '2026-01-01'),
+      ]);
+
+      await service.deleteTransaction(1, 1);
+
+      expect(mockRepo.deleteTransaction).toHaveBeenCalledWith(1);
+    });
+  });
+
+  describe('getAllTransactions', () => {
+    it('devuelve todas las transacciones del usuario', async () => {
+      const txs = [
+        makeTx(1, TransactionType.BUY, 10, 100, '2026-01-01'),
+        makeTx(2, TransactionType.SELL, 5, 150, '2026-02-01'),
+      ];
+      mockRepo.getAllTransactionsByUser.mockResolvedValue(txs);
+
+      const result = await service.getAllTransactions(1);
+
+      expect(result).toEqual(txs);
+    });
+
+    it('devuelve array vacío si no hay transacciones', async () => {
+      mockRepo.getAllTransactionsByUser.mockResolvedValue([]);
+
+      const result = await service.getAllTransactions(1);
+
+      expect(result).toEqual([]);
     });
   });
 });
