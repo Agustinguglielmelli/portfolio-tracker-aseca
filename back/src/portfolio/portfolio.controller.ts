@@ -1,6 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
   Post,
   Req,
   UnauthorizedException,
@@ -9,19 +13,38 @@ import {
 import type { Request } from 'express';
 import { JwtAuthGuard, JwtPayload } from '../auth/guards/jwt-auth.guard';
 import { PortfolioService } from './service/portfolio.service';
-import { CreatePortfolioItemDto } from './dto/create-portfolio-item.dto';
+import { BuyDto } from './dto/buy.dto';
+import { SellDto } from './dto/sell.dto';
 
 @Controller('portfolio')
 @UseGuards(JwtAuthGuard)
 export class PortfolioController {
   constructor(private readonly portfolioService: PortfolioService) {}
 
-  @Post()
-  async create(@Body() body: CreatePortfolioItemDto, @Req() req: Request) {
+  @Post('buy')
+  async buy(@Body() dto: BuyDto, @Req() req: Request) {
+    return this.portfolioService.buy(this.getUserId(req), dto);
+  }
+
+  @Post('sell')
+  async sell(@Body() dto: SellDto, @Req() req: Request) {
+    return this.portfolioService.sell(this.getUserId(req), dto);
+  }
+
+  @Get()
+  async getPortfolio(@Req() req: Request) {
+    return this.portfolioService.getPortfolio(this.getUserId(req));
+  }
+
+  @Get('transactions')
+  getAllTransactions(@Req() req: Request) {
+    return this.portfolioService.getAllTransactions(this.getUserId(req));
+  }
+
+  private getUserId(req: Request): number {
     const user = (req as any).user as JwtPayload | undefined;
-    if (!user?.sub) {
+    if (!user?.sub)
       throw new UnauthorizedException('Token de autenticación requerido.');
-    }
-    return this.portfolioService.createPortfolioItem(user.sub, body);
+    return user.sub;
   }
 }

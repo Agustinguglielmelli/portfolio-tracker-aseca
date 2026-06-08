@@ -24,6 +24,7 @@ describe('AuthController Integration', () => {
   });
 
   beforeEach(async () => {
+    await prisma.portfolioTransaction.deleteMany();
     await prisma.user.deleteMany();
   });
 
@@ -208,6 +209,7 @@ describe('AuthController Integration', () => {
 
   afterAll(async () => {
     if (prisma) {
+      await prisma.portfolioTransaction.deleteMany();
       await prisma.user.deleteMany();
       await prisma.$disconnect();
     }

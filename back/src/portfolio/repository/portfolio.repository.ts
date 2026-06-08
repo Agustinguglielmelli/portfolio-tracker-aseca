@@ -1,18 +1,42 @@
 import { Injectable } from '@nestjs/common';
+import { TransactionType } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 
-export interface CreatePortfolioItemInput {
+export interface CreateTransactionInput {
   userId: number;
   ticker: string;
+  type: TransactionType;
   quantity: number;
-  operationDate: Date;
+  priceAtOp: number;
+  date: Date;
 }
 
 @Injectable()
 export class PortfolioRepository {
   constructor(private prisma: PrismaService) {}
 
-  async createPortfolioItem(data: CreatePortfolioItemInput) {
-    return this.prisma.portfolioItem.create({ data });
+  getTransactionsByUserAndTicker(userId: number, ticker: string) {
+    return this.prisma.portfolioTransaction.findMany({
+      where: { userId, ticker },
+    });
+  }
+
+  getAllTransactionsByUser(userId: number) {
+    return this.prisma.portfolioTransaction.findMany({
+      where: { userId },
+      orderBy: { date: 'asc' },
+    });
+  }
+
+  createTransaction(data: CreateTransactionInput) {
+    return this.prisma.portfolioTransaction.create({ data });
+  }
+
+  findTransactionById(id: number) {
+    return this.prisma.portfolioTransaction.findUnique({ where: { id } });
+  }
+
+  getStockPrice(ticker: string) {
+    return this.prisma.stockPrice.findUnique({ where: { ticker } });
   }
 }
