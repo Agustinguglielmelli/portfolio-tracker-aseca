@@ -35,6 +35,7 @@ export function TransactionHistory({ refreshKey }: TransactionHistoryProps) {
         <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl overflow-hidden mt-6">
             {/* Header colapsable */}
             <button
+                data-cy="history-toggle"
                 onClick={() => setOpen((v) => !v)}
                 className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-700/30 transition-colors"
             >
@@ -67,7 +68,7 @@ export function TransactionHistory({ refreshKey }: TransactionHistoryProps) {
                             </thead>
                             <tbody className="divide-y divide-slate-700/50">
                                 {transactions.map((tx) => (
-                                    <tr key={tx.id} className="hover:bg-slate-700/20 transition-colors">
+                                    <tr key={tx.id} data-cy="transaction-row" className="hover:bg-slate-700/20 transition-colors">
                                         <td className="px-5 py-3">
                                             <span className={`text-xs font-bold px-2.5 py-1 rounded-full border ${
                                                 tx.type === 'BUY'

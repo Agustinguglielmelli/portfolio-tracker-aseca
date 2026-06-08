@@ -70,6 +70,7 @@ export default function Dashboard() {
                     </div>
                     <div className="flex items-center gap-3">
                         <button
+                            data-cy="trade-button"
                             onClick={() => setShowModal(true)}
                             className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-colors shadow-lg shadow-blue-600/25"
                         >
@@ -116,7 +117,7 @@ export default function Dashboard() {
                     )}
 
                     {!loading && !error && positions.length === 0 && (
-                        <div className="text-center py-12">
+                        <div data-cy="portfolio-empty" className="text-center py-12">
                             <p className="text-slate-400 mb-2">No tenés posiciones abiertas.</p>
                             <p className="text-slate-500 text-sm">Buscá una empresa y registrá tu primera compra.</p>
                         </div>
@@ -136,7 +137,7 @@ export default function Dashboard() {
                             </thead>
                             <tbody className="divide-y divide-slate-700/50">
                                 {positions.map((pos) => (
-                                    <tr key={pos.ticker} className="hover:bg-slate-700/30 transition-colors">
+                                    <tr key={pos.ticker} data-cy={`position-row-${pos.ticker}`} className="hover:bg-slate-700/30 transition-colors">
                                         <td className="px-5 py-4 font-semibold text-slate-100">{pos.ticker}</td>
                                         <td className="px-5 py-4 text-right text-slate-300">{pos.totalShares}</td>
                                         <td className="px-5 py-4 text-right text-slate-300">{formatCurrency(pos.avgCost)}</td>
