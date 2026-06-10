@@ -49,9 +49,10 @@ describe('PortfolioController Integration', () => {
     userId = user!.id;
 
     // Restaurar precio en caso de que algún test lo haya modificado
-    await prisma.stockPrice.update({
+    await prisma.stockPrice.upsert({
       where: { ticker: 'AAPL' },
-      data: { price: 150 },
+      update: { price: 150 },
+      create: { ticker: 'AAPL', price: 150 },
     });
   });
 

@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/compare/v1.1.0...v1.1.1) (2026-06-08)
+
+
+### Bug Fixes
+
+* fixed build error ([1b9cd45](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/commit/1b9cd4551d39ef7d30647b7346dbf1d3ab100968))
+
 # [1.1.0](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/compare/v1.0.1...v1.1.0) (2026-05-28)
 
 
