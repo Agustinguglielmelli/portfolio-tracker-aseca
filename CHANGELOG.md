@@ -1,3 +1,13 @@
+# [1.2.0](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/compare/v1.1.1...v1.2.0) (2026-06-10)
+
+
+### Features
+
+* added buy, sell, get and delete portfolio endpoints ([2e8a643](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/commit/2e8a6436ad066d85d82fcaa2d0ef0ab3ccd1b740))
+* added fifo calculation for sales with its tests ([c25e7bd](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/commit/c25e7bd3880a9d64d8db4ee4718cb9b1276f8088))
+* added portfolio integration for web ([40ed2bb](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/commit/40ed2bb712e6acca5531e14647e1cefea410ef8f))
+* replaced PortfolioItem with the new Transaction ([92451af](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/commit/92451af2727a492c2b50608e25ce040945e9f0c9))
+
 ## [1.1.1](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/compare/v1.1.0...v1.1.1) (2026-06-08)
 
 
