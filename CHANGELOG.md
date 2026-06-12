@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/compare/v1.2.0...v1.3.0) (2026-06-12)
+
+
+### Features
+
+* added signup and login mobile ([#57](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/issues/57)) ([5a10a78](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/commit/5a10a786c4e48379cb80c428fb709c34ab188f16))
+
 # [1.2.0](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/compare/v1.1.1...v1.2.0) (2026-06-10)
 
 
