@@ -32,4 +32,16 @@ export class WatchlistService {
 
     return this.watchlistRepository.create(userId, upperTicker);
   }
+
+  async remove(userId: number, ticker: string) {
+    const upperTicker = ticker.toUpperCase();
+    const existing = await this.watchlistRepository.findByUserAndTicker(
+      userId,
+      upperTicker,
+    );
+    if (!existing) {
+      throw new NotFoundException('La empresa no está en tu watchlist');
+    }
+    return this.watchlistRepository.delete(userId, upperTicker);
+  }
 }
