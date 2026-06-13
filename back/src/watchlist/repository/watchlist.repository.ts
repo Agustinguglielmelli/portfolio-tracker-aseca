@@ -18,4 +18,12 @@ export class WatchlistRepository {
       },
     });
   }
+
+  async delete(userId: number, ticker: string) {
+    return this.prisma.watchlistItem.delete({
+      where: {
+        userId_ticker: { userId, ticker: ticker.toUpperCase() },
+      },
+    });
+  }
 }
