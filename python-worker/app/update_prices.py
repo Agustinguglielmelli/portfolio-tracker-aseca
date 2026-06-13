@@ -142,7 +142,14 @@ def fetch_price_single(ticker: str, timeout: int) -> float | None:
     def _fetch():
         try:
             info = yf.Ticker(ticker).fast_info
-            price = info.get("lastPrice") or info.get("last_price")
+            if info is not None:
+                try:
+                    price = info.get("lastPrice") or info.get("last_price")
+                except AttributeError:
+                    price = None
+            else:
+                price = None
+
             if price is not None:
                 result[0] = float(price)
             else:
@@ -170,35 +177,62 @@ def run_batch(conn, tickers: list[str], config: dict) -> tuple[int, int, list[di
         logger.info("No tickers to process.")
         return 0, 0, []
 
-    fetch_timeout = config["fetch_timeout"]
-    batch_prices = fetch_prices_batch(tickers, fetch_timeout)
+    tickers = list(dict.fromkeys(tickers))
+
+    fetch_timeout = config.get("fetch_timeout")
+    if fetch_timeout is None or not isinstance(fetch_timeout, int) or fetch_timeout <= 0:
+        fetch_timeout = 30
+
+    import math
 
     success_count = 0
     error_count = 0
     details: list[dict] = []
     now = datetime.now(timezone.utc)
 
-    for ticker in tickers:
-        price = batch_prices.get(ticker)
+    try:
+        batch_prices = fetch_prices_batch(tickers, fetch_timeout)
 
-        if price is None:
-            logger.info("[%s] Not in batch result, trying single fetch fallback…", ticker)
-            price = fetch_price_single(ticker, fetch_timeout)
+        for ticker in tickers:
+            price = batch_prices.get(ticker)
 
-        if price is None:
-            logger.error("[%s] Could not retrieve price from any source. Skipping.", ticker)
-            details.append({"ticker": ticker, "error": "Could not retrieve price"})
-            error_count += 1
-            continue
+            if price is None:
+                logger.info("[%s] Not in batch result, trying single fetch fallback…", ticker)
+                price = fetch_price_single(ticker, fetch_timeout)
 
+            if price is not None:
+                try:
+                    is_invalid = math.isnan(price) or price <= 0.0
+                except (TypeError, ValueError):
+                    is_invalid = True
+                if is_invalid:
+                    logger.error("[%s] Price is invalid (NaN, Zero or Negative). Skipping.", ticker)
+                    price = None
+
+            if price is None:
+                logger.error("[%s] Could not retrieve price from any source. Skipping.", ticker)
+                details.append({"ticker": ticker, "error": "Could not retrieve price"})
+                error_count += 1
+                continue
+
+            try:
+                upsert_stock_price(conn, ticker, price, now)
+                logger.info("[%s] SUCCESS — Updated price: %.4f", ticker, price)
+                details.append({"ticker": ticker, "price": round(price, 4)})
+                success_count += 1
+            except psycopg2.Error as exc:
+                logger.error("[%s] Database error on upsert: %s. Aborting batch.", ticker, exc)
+                raise exc
+            except Exception as exc:
+                logger.error("[%s] ERROR — DB upsert failed: %s. Skipping.", ticker, exc)
+                details.append({"ticker": ticker, "error": f"DB upsert failed: {exc}"})
+                error_count += 1
+
+    except psycopg2.Error as exc:
         try:
-            upsert_stock_price(conn, ticker, price, now)
-            logger.info("[%s] SUCCESS — Updated price: %.4f", ticker, price)
-            details.append({"ticker": ticker, "price": round(price, 4)})
-            success_count += 1
-        except Exception as exc:
-            logger.error("[%s] ERROR — DB upsert failed: %s. Skipping.", ticker, exc)
-            details.append({"ticker": ticker, "error": f"DB upsert failed: {exc}"})
-            error_count += 1
+            conn.rollback()
+        except Exception:
+            pass
+        raise exc
 
     return success_count, error_count, details
