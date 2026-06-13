@@ -50,6 +50,8 @@ model WatchlistItem {
   userId Int
   ticker String
   user   User   @relation(fields: [userId], references: [id])
+
+  @@unique([userId, ticker])
 }
 
 model StockPrice {
@@ -59,12 +61,11 @@ model StockPrice {
   updatedAt DateTime @updatedAt
 }
 
-// US 3.3 — BatchLog: persists the result of each price update batch run
 model BatchLog {
   id               Int      @id @default(autoincrement())
-  ranAt            DateTime @default(now()) // US 3.3 — timestamp of the batch execution
+  ranAt            DateTime @default(now())
   tickersProcessed Int
   success          Int
   errors           Int
-  details          Json // US 3.3 — per-ticker result array: [{ticker, price?, error?}]
+  details          Json
 }
