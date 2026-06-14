@@ -33,7 +33,6 @@ export function TransactionHistory({ refreshKey }: TransactionHistoryProps) {
 
     return (
         <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl overflow-hidden mt-6">
-            {/* Header colapsable */}
             <button
                 data-cy="history-toggle"
                 onClick={() => setOpen((v) => !v)}

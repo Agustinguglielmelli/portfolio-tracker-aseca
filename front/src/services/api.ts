@@ -49,9 +49,7 @@ export const companiesApi = {
     }
 };
 
-// US 3.4 — API client for the GET /prices/last-update endpoint
 export const pricesApi = {
-    // US 3.4 — Fetches the last batch update info; requires a valid JWT token
     getLastUpdate: async () => {
         const token = localStorage.getItem('token');
         if (!token) throw new Error('No autenticado');
@@ -67,10 +65,9 @@ export const pricesApi = {
             const errorData = await response.json().catch(() => ({}));
             throw new Error(errorData.message || 'Error al obtener la última actualización');
         }
-        return response.json(); // US 3.4
+        return response.json();
     },
 
-    // Trigger batch update manually (requires ADMIN JWT)
     updatePrices: async () => {
         const token = localStorage.getItem('token');
         if (!token) throw new Error('No autenticado');
@@ -89,4 +86,40 @@ export const pricesApi = {
         }
         return response.json();
     },
+};
+
+export const watchlistApi = {
+    getList: async () => {
+        const token = localStorage.getItem('token');
+        if (!token) throw new Error('No autenticado');
+        const res = await fetch(`${API_URL}/watchlist`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error('Error al cargar la watchlist');
+        return res.json();
+    },
+    add: async (ticker: string) => {
+        const token = localStorage.getItem('token');
+        if (!token) throw new Error('No autenticado');
+        const res = await fetch(`${API_URL}/watchlist`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ ticker })
+        });
+        if (!res.ok) throw new Error('Error al agregar a la watchlist');
+        return res.json();
+    },
+    remove: async (ticker: string) => {
+        const token = localStorage.getItem('token');
+        if (!token) throw new Error('No autenticado');
+        const res = await fetch(`${API_URL}/watchlist/${ticker}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error('Error al eliminar de la watchlist');
+        return res.json();
+    }
 };

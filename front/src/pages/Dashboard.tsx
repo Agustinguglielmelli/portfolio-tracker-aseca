@@ -70,11 +70,9 @@ export default function Dashboard() {
 
     return (
         <>
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 text-white">
+        <div className="min-h-screen bg-linear-to-br from-slate-900 via-blue-950 to-slate-900 text-white">
             <Navbar />
             <div className="max-w-4xl mx-auto px-4 py-8">
-
-                {/* Header */}
                 <div className="flex items-center justify-between mb-8">
                     <div>
                         <h1 className="text-2xl font-bold text-white">Portfolio</h1>
@@ -106,8 +104,6 @@ export default function Dashboard() {
                         </button>
                     </div>
                 </div>
-
-                {/* Resumen total */}
                 {!loading && positions.length > 0 && (
                     <div className="grid grid-cols-3 gap-4 mb-6">
                         <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-4">
@@ -126,8 +122,6 @@ export default function Dashboard() {
                         </div>
                     </div>
                 )}
-
-                {/* Posiciones */}
                 <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl overflow-hidden">
                     {loading && (
                         <p className="text-slate-400 text-center py-10 animate-pulse">Cargando portfolio...</p>

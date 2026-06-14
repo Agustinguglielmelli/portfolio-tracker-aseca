@@ -38,10 +38,8 @@ export default function Register() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br bg-red-500 from-slate-900 via-blue-950 to-slate-900 px-4">
+        <div className="min-h-screen flex items-center justify-center bg-linear-to-br bg-red-500 from-slate-900 via-blue-950 to-slate-900 px-4">
             <div className="w-full max-w-sm">
-
-                {/* Logo / marca */}
                 <div className="text-center mb-8">
                     <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-blue-600 mb-4">
                         <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -51,8 +49,6 @@ export default function Register() {
                     <h1 className="text-2xl font-bold text-white">Crear cuenta</h1>
                     <p className="text-slate-400 text-sm mt-1">Portfolio Tracker</p>
                 </div>
-
-                {/* Card */}
                 <div className="bg-slate-800/50 border border-slate-700/60 rounded-2xl p-8 shadow-xl">
 
                     {error && (

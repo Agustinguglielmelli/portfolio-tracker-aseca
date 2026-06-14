@@ -40,7 +40,6 @@ interface ChartDataPoint {
     [key: string]: string | number | undefined;
 }
 
-// Función auxiliar para formatear moneda en tarjetas
 const formatCurrency = (val: number | null | undefined) => {
     if (val === null || val === undefined) return 'N/A';
     if (val > 1e9) return `$${(val / 1e9).toFixed(2)}B`;
@@ -48,7 +47,6 @@ const formatCurrency = (val: number | null | undefined) => {
     return `$${val.toLocaleString()}`;
 };
 
-// Función para transformar los datos del backend para el gráfico de Recharts
 const formatChartData = (history: HistoricalData | null): ChartDataPoint[] => {
     if (!history) return [];
     const dateMap = new Map<string, ChartDataPoint>();
@@ -66,7 +64,6 @@ const formatChartData = (history: HistoricalData | null): ChartDataPoint[] => {
     processMetric(history.netIncome, 'netIncome');
     processMetric(history.eps, 'eps');
 
-    // Ordenar cronológicamente (del más viejo al más nuevo para que el gráfico vaya hacia adelante)
     return Array.from(dateMap.values()).sort(
         (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
@@ -113,12 +110,12 @@ export const CompanyDetail = () => {
     }, [ticker]);
 
     if (loading) return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 flex items-center justify-center">
+        <div className="min-h-screen bg-linear-to-br from-slate-900 via-blue-950 to-slate-900 flex items-center justify-center">
             <p className="text-slate-400 animate-pulse">Cargando datos de {ticker}...</p>
         </div>
     );
     if (error) return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-linear-to-br from-slate-900 via-blue-950 to-slate-900 flex items-center justify-center p-4">
             <div className="text-red-400 text-center bg-red-500/10 border border-red-500/20 rounded-2xl p-8 max-w-md">{error}</div>
         </div>
     );
@@ -126,15 +123,13 @@ export const CompanyDetail = () => {
     const chartData = formatChartData(history);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900">
+        <div className="min-h-screen bg-linear-to-br from-slate-900 via-blue-950 to-slate-900">
             <Navbar />
             <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
                 <header>
                     <h1 className="text-3xl font-bold text-white">{ticker}</h1>
                     <p className="text-slate-400 text-sm mt-1">Datos financieros</p>
                 </header>
-
-                {/* US 2.6: Métricas Actuales */}
                 <section>
                     <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Métricas Actuales</h2>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -145,7 +140,6 @@ export const CompanyDetail = () => {
                     </div>
                 </section>
 
-                {/* US 2.8: Evolución Histórica */}
                 <section>
                     <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Evolución Histórica</h2>
                     <div className="bg-slate-800/50 border border-slate-700/60 rounded-2xl p-5">
@@ -189,7 +183,6 @@ export const CompanyDetail = () => {
                     </div>
                 </section>
 
-                {/* US 2.7: Filings Recientes */}
                 <section>
                     <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Filings Recientes (10-K / 10-Q)</h2>
                     <div className="bg-slate-800/50 border border-slate-700/60 rounded-2xl divide-y divide-slate-700/50 overflow-hidden">

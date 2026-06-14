@@ -14,7 +14,7 @@ import { AddWatchlistDto } from './dto/add-watchlist.dto';
 
 interface RequestWithUser {
   user: {
-    userId: number;
+    sub: number;
     email: string;
     role: string;
   };
@@ -27,7 +27,7 @@ export class WatchlistController {
 
   @Post()
   async add(@Request() req: RequestWithUser, @Body() dto: AddWatchlistDto) {
-    return this.watchlistService.add(req.user.userId, dto.ticker);
+    return this.watchlistService.add(req.user.sub, dto.ticker);
   }
 
   @Delete(':ticker')
@@ -35,11 +35,11 @@ export class WatchlistController {
     @Request() req: RequestWithUser,
     @Param('ticker') ticker: string,
   ) {
-    return this.watchlistService.remove(req.user.userId, ticker);
+    return this.watchlistService.remove(req.user.sub, ticker);
   }
 
   @Get()
-  async getList(@Request() req) {
-    return this.watchlistService.getList(req.user.userId);
+  async getList(@Request() req: RequestWithUser) {
+    return this.watchlistService.getList(req.user.sub);
   }
 }

@@ -1,12 +1,6 @@
-import { useState, useRef, useEffect, type ChangeEvent, type SyntheticEvent } from 'react';
+import { useState, type ChangeEvent, type SyntheticEvent } from 'react';
 import { portfolioApi } from '../services/portfolioApi';
-import { companiesApi } from '../services/api';
-
-interface CompanyResult {
-    cik: string;
-    name: string;
-    ticker: string;
-}
+import { CompanySearchDropdown, type CompanyResult } from './CompanySearchDropdown';
 
 interface TradeModalProps {
     onClose: () => void;
@@ -23,53 +17,12 @@ export function TradeModal({ onClose, onSuccess }: TradeModalProps) {
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-
     const [query, setQuery] = useState('');
-    const [results, setResults] = useState<CompanyResult[]>([]);
-    const [searching, setSearching] = useState(false);
-    const [showDropdown, setShowDropdown] = useState(false);
-    const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const dropdownRef = useRef<HTMLDivElement>(null);
-
-    // Buscar con debounce mientras el usuario escribe
-    useEffect(() => {
-        if (!query.trim() || ticker) {
-            setResults([]);
-            setShowDropdown(false);
-            return;
-        }
-        if (searchTimeout.current) clearTimeout(searchTimeout.current);
-        searchTimeout.current = setTimeout(async () => {
-            setSearching(true);
-            try {
-                const data = await companiesApi.search(query);
-                setResults(data.filter((c: CompanyResult) => c.ticker));
-                setShowDropdown(true);
-            } catch {
-                setResults([]);
-            } finally {
-                setSearching(false);
-            }
-        }, 350);
-    }, [query, ticker]);
-
-    // Cerrar dropdown al clickear fuera
-    useEffect(() => {
-        const handler = (e: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-                setShowDropdown(false);
-            }
-        };
-        document.addEventListener('mousedown', handler);
-        return () => document.removeEventListener('mousedown', handler);
-    }, []);
 
     const handleSelectCompany = (company: CompanyResult) => {
         setTicker(company.ticker);
         setCompanyName(company.name);
         setQuery('');
-        setResults([]);
-        setShowDropdown(false);
     };
 
     const handleClearTicker = () => {
@@ -107,8 +60,6 @@ export function TradeModal({ onClose, onSuccess }: TradeModalProps) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
             <div className="w-full max-w-sm bg-slate-800/90 border border-slate-700/60 rounded-2xl shadow-2xl p-6">
-
-                {/* Header */}
                 <div className="flex items-center justify-between mb-6">
                     <h2 className="text-lg font-bold text-white">Registrar operación</h2>
                     <button onClick={onClose} className="text-slate-400 hover:text-slate-200 transition-colors text-xl leading-none">
@@ -116,7 +67,6 @@ export function TradeModal({ onClose, onSuccess }: TradeModalProps) {
                     </button>
                 </div>
 
-                {/* Selector BUY / SELL */}
                 <div className="flex rounded-xl overflow-hidden border border-slate-600/50 mb-5">
                     {(['BUY', 'SELL'] as TradeType[]).map((t) => (
                         <button
@@ -145,66 +95,16 @@ export function TradeModal({ onClose, onSuccess }: TradeModalProps) {
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-
-                    {/* Ticker con búsqueda */}
                     <div>
                         <label className="block text-sm font-medium text-slate-300 mb-1.5">Empresa</label>
-
-                        {ticker ? (
-                            // Empresa seleccionada
-                            <div data-cy="selected-ticker" className="flex items-center justify-between px-4 py-2.5 bg-slate-700/50 border border-slate-600/50 rounded-xl">
-                                <div>
-                                    <span className="text-slate-100 font-semibold text-sm">{ticker}</span>
-                                    <span className="text-slate-400 text-xs ml-2">{companyName}</span>
-                                </div>
-                                <button
-                                    type="button"
-                                    data-cy="clear-ticker"
-                                    onClick={handleClearTicker}
-                                    className="text-slate-400 hover:text-slate-200 text-sm transition-colors"
-                                >
-                                    ✕
-                                </button>
-                            </div>
-                        ) : (
-                            // Input de búsqueda
-                            <div className="relative" ref={dropdownRef}>
-                                <input
-                                    data-cy="ticker-search"
-                                    type="text"
-                                    placeholder="Buscar por nombre o ticker..."
-                                    value={query}
-                                    onChange={(e: ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
-                                    className="w-full px-4 py-2.5 bg-slate-700/50 border border-slate-600/50 text-slate-100 placeholder-slate-500 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60 transition"
-                                />
-                                {searching && (
-                                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                                        <div className="w-4 h-4 border-2 border-slate-500 border-t-blue-400 rounded-full animate-spin" />
-                                    </div>
-                                )}
-                                {showDropdown && results.length > 0 && (
-                                    <div className="absolute z-10 w-full mt-1 bg-slate-800 border border-slate-700/60 rounded-xl shadow-xl overflow-hidden max-h-48 overflow-y-auto">
-                                        {results.map((company) => (
-                                            <button
-                                                key={company.cik}
-                                                type="button"
-                                                data-cy={`ticker-option-${company.ticker}`}
-                                                onClick={() => handleSelectCompany(company)}
-                                                className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-slate-700/60 transition-colors text-left"
-                                            >
-                                                <span className="text-slate-100 text-sm truncate">{company.name}</span>
-                                                <span className="text-blue-300 text-xs font-semibold ml-2 shrink-0">{company.ticker}</span>
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
-                                {showDropdown && results.length === 0 && !searching && query.trim() && (
-                                    <div className="absolute z-10 w-full mt-1 bg-slate-800 border border-slate-700/60 rounded-xl shadow-xl px-4 py-3">
-                                        <p className="text-slate-400 text-sm">Sin resultados para "{query}"</p>
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                        <CompanySearchDropdown
+                            selectedTicker={ticker}
+                            selectedCompanyName={companyName}
+                            onSelect={handleSelectCompany}
+                            onClear={handleClearTicker}
+                            query={query}
+                            setQuery={setQuery}
+                        />
                     </div>
 
                     <div>
