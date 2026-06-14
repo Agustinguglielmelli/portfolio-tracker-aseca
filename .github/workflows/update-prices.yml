@@ -1,11 +1,10 @@
-# US 3.2 — CI snippet for batch price update
-# This workflow can be triggered manually from GitHub Actions to run
-# the stock price update batch process inside the Docker environment.
-# It supports both full-DB and override-ticker modes via TICKERS_OVERRIDE.
+# CI workflow for the stock price batch update via python-worker (FastAPI microservice)
+# Triggered manually from GitHub Actions.
+# Supports both full-DB and override-ticker modes via TICKERS_OVERRIDE.
 name: Update Stock Prices (Manual)
 
 on:
-  workflow_dispatch: # US 3.2 — Manual trigger only
+  workflow_dispatch:
     inputs:
       tickers_override:
         description: |
@@ -24,11 +23,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # US 3.2 — Start database and backend services
+      # Start database, python-worker and backend services
       - name: Start services
-        run: docker compose up -d --build db backend
+        run: docker compose up -d --build db python-worker backend
+        env:
+          TICKERS_OVERRIDE: ${{ github.event.inputs.tickers_override }}
+          FETCH_TIMEOUT: ${{ github.event.inputs.fetch_timeout }}
 
-      # US 3.2 — Wait for the database to be ready
+      # Wait for the database to be ready
       - name: Wait for DB
         run: |
           echo "Waiting for PostgreSQL..."
@@ -37,28 +39,34 @@ jobs:
             sleep 2
           done
 
-      # US 3.2 — Run Prisma migrations and seed the admin user inside the backend container
+      # Wait for the python-worker healthcheck to pass
+      - name: Wait for python-worker
+        run: |
+          echo "Waiting for python-worker..."
+          for i in $(seq 1 20); do
+            curl -sf http://localhost:8000/health && break
+            sleep 3
+          done
+
+      # Run Prisma migrations and seed the admin user inside the backend container
       - name: Run migrations and seed
         run: |
           docker compose exec backend npx prisma migrate deploy
           docker compose exec backend npx prisma db seed
 
-      # US 3.2 — Execute the batch price update script via docker-compose exec.
+      # Trigger the batch update via HTTP POST to the python-worker API.
       # ADMIN_API_KEY is stored as a GitHub Actions secret (Settings → Secrets).
-      # TICKERS_OVERRIDE and FETCH_TIMEOUT are passed from the workflow_dispatch inputs.
-      # The script exits 0 even if individual tickers fail; only a critical error exits 1.
-      - name: Run price update batch
+      # The curl call goes through the backend (NestJS) which forwards to python-worker,
+      # or directly to python-worker if you prefer to bypass NestJS.
+      - name: Trigger price update batch
         env:
           ADMIN_API_KEY: ${{ secrets.ADMIN_API_KEY }}
-          TICKERS_OVERRIDE: ${{ github.event.inputs.tickers_override }}
-          FETCH_TIMEOUT: ${{ github.event.inputs.fetch_timeout }}
         run: |
-          docker compose exec \
-            -e TICKERS_OVERRIDE="$TICKERS_OVERRIDE" \
-            -e FETCH_TIMEOUT="$FETCH_TIMEOUT" \
-            backend python3 scripts/update_prices.py
+          curl -sf -X POST http://localhost:3000/prices/update \
+            -H "x-api-key: $ADMIN_API_KEY" \
+            -H "Content-Type: application/json"
 
-      # US 3.2 — Cleanup
+      # Cleanup
       - name: Stop services
         if: always()
         run: docker compose down

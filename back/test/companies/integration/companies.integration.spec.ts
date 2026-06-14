@@ -4,8 +4,6 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { AppModule } from '../../../src/app.module';
 
-// Aumentamos globalmente el timeout a 60 segundos porque interactuamos
-// con una API externa (SEC EDGAR) y sus descargas masivas iniciales toman su tiempo
 jest.setTimeout(60000);
 
 describe('Companies Integration', () => {
@@ -18,8 +16,6 @@ describe('Companies Integration', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
-    // NOTA: Durante .init(), CompaniesRepository automáticamente descarga
-    // el JSON "company_tickers.json" de la SEC.
   });
 
   it('/companies/search (GET) - Debe devolver resultados reales de la SEC', async () => {
@@ -29,14 +25,10 @@ describe('Companies Integration', () => {
 
     expect(Array.isArray(response.body)).toBe(true);
     expect(response.body.length).toBeGreaterThan(0);
-
-    // Verificamos la estructura base provista por el Servicio
     const first = response.body[0];
     expect(first).toHaveProperty('name');
     expect(first).toHaveProperty('ticker');
     expect(first).toHaveProperty('cik');
-
-    // Comprobamos que trajo de verdad a "Microsoft Corporation"
     const msft = response.body.find((c: any) => c.ticker === 'MSFT');
     expect(msft).toBeDefined();
   });
@@ -45,9 +37,6 @@ describe('Companies Integration', () => {
     const response = await request(app.getHttpServer())
       .get('/companies/AAPL/metrics')
       .expect(200);
-
-    // Las métricas reales siempre varían, por lo que comprobamos
-    // sus tipos numéricos devueltos desde XBRL GAAP.
     expect(response.body).toHaveProperty('revenue');
     expect(typeof response.body.revenue).toBe('number');
 
@@ -78,8 +67,6 @@ describe('Companies Integration', () => {
     expect(firstFiling).toHaveProperty('date');
     expect(firstFiling).toHaveProperty('type');
     expect(firstFiling).toHaveProperty('accessionNumber');
-
-    // Validamos la lógica real: el servicio DEBE filtrar sólo los 10-K y 10-Q
     const invalidTypes = response.body.filter(
       (f: any) => f.type !== '10-K' && f.type !== '10-Q',
     );
@@ -97,8 +84,6 @@ describe('Companies Integration', () => {
 
     expect(Array.isArray(response.body.revenue)).toBe(true);
     expect(response.body.revenue.length).toBeGreaterThan(0);
-
-    // Validamos la estructura y la existencia del mapping temporal
     const lastRevenue = response.body.revenue[0];
     expect(lastRevenue).toHaveProperty('date');
     expect(lastRevenue).toHaveProperty('value');
