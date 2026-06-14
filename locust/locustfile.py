@@ -1,10 +1,10 @@
 from locust import HttpUser, between, events
 
-from tasks.auth import LOCUST_PASSWORD, login, register, unique_email
-from tasks.companies import CompanyTasksMixin
-from tasks.portfolio import PortfolioTasksMixin
-from tasks.prices import PriceTasksMixin
-from tasks.watchlist import WatchlistTasksMixin
+from tests.auth import LOCUST_PASSWORD, login, register, unique_email
+from tests.companies import CompanyTasksMixin
+from tests.portfolio import PortfolioTasksMixin
+from tests.prices import PriceTasksMixin
+from tests.watchlist import WatchlistTasksMixin
 
 
 class PortfolioUser(
