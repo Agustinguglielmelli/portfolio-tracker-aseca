@@ -4,6 +4,7 @@ import { Navbar } from '../components/Navbar';
 import { TradeModal } from '../components/TradeModal';
 import { TransactionHistory } from '../components/TransactionHistory';
 import { portfolioApi, type PortfolioPosition } from '../services/portfolioApi';
+import { pricesApi } from '../services/api';
 
 function formatCurrency(val: number | null) {
     if (val === null) return '—';
@@ -22,6 +23,13 @@ function PnlBadge({ pnl, pnlPct }: { pnl: number | null; pnlPct: number | null }
     );
 }
 
+function formatLastUpdate(iso: string): string {
+    return new Date(iso).toLocaleString('es-AR', {
+        day: '2-digit', month: 'short', year: 'numeric',
+        hour: '2-digit', minute: '2-digit',
+    });
+}
+
 export default function Dashboard() {
     const navigate = useNavigate();
     const [positions, setPositions] = useState<PortfolioPosition[]>([]);
@@ -29,6 +37,7 @@ export default function Dashboard() {
     const [error, setError] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0);
+    const [lastUpdate, setLastUpdate] = useState<string | null | undefined>(undefined);
 
     const fetchPortfolio = async () => {
         try {
@@ -45,6 +54,9 @@ export default function Dashboard() {
 
     useEffect(() => {
         void fetchPortfolio();
+        pricesApi.getLastUpdate()
+            .then((d) => setLastUpdate(d.lastUpdate ?? null))
+            .catch(() => setLastUpdate(null));
     }, []);
 
     const handleLogout = () => {
@@ -67,6 +79,15 @@ export default function Dashboard() {
                     <div>
                         <h1 className="text-2xl font-bold text-white">Portfolio</h1>
                         <p className="text-slate-400 text-sm mt-1">Resumen de tus posiciones</p>
+                        {lastUpdate === undefined ? null : lastUpdate === null ? (
+                            <span className="inline-flex items-center gap-1 mt-1.5 text-xs text-amber-500/70">
+                                ⚠ Sin datos de precios cargados
+                            </span>
+                        ) : (
+                            <span className="inline-flex items-center gap-1 mt-1.5 text-xs text-slate-500">
+                                Precios actualizados: <span className="text-slate-400">{formatLastUpdate(lastUpdate)}</span>
+                            </span>
+                        )}
                     </div>
                     <div className="flex items-center gap-3">
                         <button

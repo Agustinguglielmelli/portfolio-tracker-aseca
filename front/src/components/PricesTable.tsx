@@ -36,7 +36,7 @@ export function PricesTable({ details }: PricesTableProps) {
                                     {d.ticker}
                                 </td>
                                 <td className="px-4 py-2">
-                                    {d.price !== undefined ? (
+                                    {d.price != null ? (
                                         <span className="inline-flex items-center gap-1 text-emerald-400 text-xs font-medium">
                                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
                                             OK
@@ -49,7 +49,7 @@ export function PricesTable({ details }: PricesTableProps) {
                                     )}
                                 </td>
                                 <td className="px-4 py-2 text-right font-mono">
-                                    {d.price !== undefined ? (
+                                    {d.price != null ? (
                                         <span className="text-slate-200">
                                             ${d.price.toFixed(2)}
                                         </span>
