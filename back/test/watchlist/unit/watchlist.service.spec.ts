@@ -76,4 +76,25 @@ describe('WatchlistService', () => {
       expect(findSpy).toHaveBeenCalledWith(1);
     });
   });
+
+  describe('compare', () => {
+    it('debe retornar metricas de multiples empresas', async () => {
+      jest.spyOn(repo, 'findListWithPrices').mockResolvedValue([
+        { ticker: 'AAPL', price: 150, updatedAt: new Date() },
+        { ticker: 'MSFT', price: 300, updatedAt: new Date() },
+      ]);
+      jest.spyOn(companiesService, 'getMetrics').mockResolvedValue({
+        revenue: 1000,
+        netIncome: 500,
+        eps: 5,
+        totalAssets: 2000,
+        totalLiabilities: 1000,
+      });
+
+      const result = await service.compare(1, ['AAPL', 'MSFT']);
+      expect(result.length).toBe(2);
+      expect(result[0].ticker).toBe('AAPL');
+      expect(result[0].revenue).toBe(1000);
+    });
+  });
 });
