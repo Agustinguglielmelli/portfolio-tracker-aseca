@@ -6,5 +6,6 @@ import { CompaniesRepository } from './repository/companies.repository';
 @Module({
   controllers: [CompaniesController],
   providers: [CompaniesService, CompaniesRepository],
+  exports: [CompaniesService],
 })
 export class CompaniesModule {}
