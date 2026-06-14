@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Navbar } from '../components/Navbar';
 import { watchlistApi } from '../services/api';
 import { WatchlistComparison } from '../components/WatchlistComparison';
+import { CompanySearchDropdown, type CompanyResult } from '../components/CompanySearchDropdown';
 
 interface WatchlistItem {
     ticker: string;
@@ -9,9 +10,12 @@ interface WatchlistItem {
 
 export default function Watchlist() {
     const [watchlist, setWatchlist] = useState<WatchlistItem[]>([]);
-    const [tickerInput, setTickerInput] = useState('');
     const [selectedTickers, setSelectedTickers] = useState<string[]>([]);
     const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+
+    const [query, setQuery] = useState('');
+    const [ticker, setTicker] = useState('');
+    const [companyName, setCompanyName] = useState('');
 
     const showMessage = useCallback((text: string, type: 'success' | 'error') => {
         setMessage({ text, type });
@@ -34,12 +38,26 @@ export default function Watchlist() {
         fetchInitialData().catch(() => {});
     }, [loadWatchlist]);
 
+    const handleSelectCompany = (company: CompanyResult) => {
+        setTicker(company.ticker);
+        setCompanyName(company.name);
+        setQuery('');
+    };
+
+    const handleClearTicker = () => {
+        setTicker('');
+        setCompanyName('');
+        setQuery('');
+    };
+
     const handleAdd = async (e: React.SyntheticEvent) => {
         e.preventDefault();
-        if (!tickerInput.trim()) return;
+        const tickerToAdd = ticker || query.trim().toUpperCase();
+        if (!tickerToAdd) return;
+
         try {
-            await watchlistApi.add(tickerInput.toUpperCase());
-            setTickerInput('');
+            await watchlistApi.add(tickerToAdd);
+            handleClearTicker();
             showMessage('Empresa agregada a la watchlist correctamente', 'success');
             await loadWatchlist();
         } catch (error: unknown) {
@@ -47,10 +65,10 @@ export default function Watchlist() {
         }
     };
 
-    const handleRemove = async (ticker: string) => {
+    const handleRemove = async (tickerToRemove: string) => {
         try {
-            await watchlistApi.remove(ticker);
-            setSelectedTickers(prev => prev.filter(t => t !== ticker));
+            await watchlistApi.remove(tickerToRemove);
+            setSelectedTickers(prev => prev.filter(t => t !== tickerToRemove));
             showMessage('Empresa eliminada de la watchlist', 'success');
             await loadWatchlist();
         } catch (error: unknown) {
@@ -58,11 +76,11 @@ export default function Watchlist() {
         }
     };
 
-    const toggleSelect = (ticker: string) => {
+    const toggleSelect = (tickerToSelect: string) => {
         setSelectedTickers(prev =>
-            prev.includes(ticker)
-                ? prev.filter(t => t !== ticker)
-                : [...prev, ticker]
+            prev.includes(tickerToSelect)
+                ? prev.filter(t => t !== tickerToSelect)
+                : [...prev, tickerToSelect]
         );
     };
 
@@ -78,15 +96,18 @@ export default function Watchlist() {
                     </div>
                 )}
 
-                <form onSubmit={handleAdd} className="flex gap-2 mb-8">
-                    <input
-                        type="text"
-                        placeholder="Ticker a agregar (ej. AAPL)"
-                        className="flex-1 max-w-sm px-4 py-2.5 bg-slate-700/50 border border-slate-600/50 text-slate-100 placeholder-slate-500 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/50 transition"
-                        value={tickerInput}
-                        onChange={(e) => setTickerInput(e.target.value)}
-                    />
-                    <button type="submit" className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl text-sm transition shadow-lg shadow-blue-600/30">
+                <form onSubmit={handleAdd} className="flex gap-2 mb-8 items-start">
+                    <div className="flex-1 max-w-sm">
+                        <CompanySearchDropdown
+                            selectedTicker={ticker}
+                            selectedCompanyName={companyName}
+                            onSelect={handleSelectCompany}
+                            onClear={handleClearTicker}
+                            query={query}
+                            setQuery={setQuery}
+                        />
+                    </div>
+                    <button type="submit" className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl text-sm transition shadow-lg shadow-blue-600/30 h-11">
                         Agregar
                     </button>
                 </form>

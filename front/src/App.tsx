@@ -1,4 +1,3 @@
-// front/src/App.tsx
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -10,7 +9,6 @@ import AdminDashboard from './pages/AdminDashboard';
 import Watchlist from './pages/Watchlist';
 import { getRedirectPathForToken, getRoleFromToken } from './utils/auth';
 
-// Rutas Públicas: Si TIENE token, lo expulsa al dashboard
 const PublicRoute = ({ children }: { children: JSX.Element }) => {
     const token = localStorage.getItem('token');
     const redirectPath = getRedirectPathForToken(token);
@@ -36,7 +34,6 @@ const AdminRoute = ({ children }: { children: JSX.Element }) => {
 
 const RootRedirect = () => {
     const token = localStorage.getItem('token');
-    // Si hay token, vas al dashboard. Si no, al login.
     const redirectPath = getRedirectPathForToken(token);
     return redirectPath ? <Navigate to={redirectPath} /> : <Navigate to="/login" />;
 };
@@ -46,8 +43,6 @@ function App() {
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<RootRedirect />} />
-
-                {/* --- Rutas Públicas --- */}
                 <Route
                     path="/login"
                     element={
@@ -64,8 +59,6 @@ function App() {
                         </PublicRoute>
                     }
                 />
-
-                {/* --- Rutas Protegidas --- */}
                 <Route
                     path="/dashboard"
                     element={
@@ -99,8 +92,6 @@ function App() {
                         </ProtectedRoute>
                     }
                 />
-
-                {/* --- Rutas de Admin --- */}
                 <Route
                     path="/admin/dashboard"
                     element={
