@@ -74,3 +74,22 @@ export const portfolioApi = {
     return response.json();
   },
 };
+
+export interface LastUpdateData {
+  lastUpdate: string | null;
+  message: string;
+  tickersProcessed: number;
+  success: number;
+  errors: number;
+}
+
+export const pricesApi = {
+  async getLastUpdate(): Promise<LastUpdateData> {
+    const token = await getToken();
+    const response = await fetch(`${API_URL}/prices/last-update`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) throw new Error('Error al obtener la última actualización de precios');
+    return response.json();
+  },
+};
