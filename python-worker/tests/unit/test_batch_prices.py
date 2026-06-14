@@ -1,8 +1,8 @@
 import threading
 from unittest.mock import MagicMock, patch
 import pytest
-import update_prices
-from update_prices import run_batch
+import app.update_prices as update_prices
+from app.update_prices import run_batch
 from helpers import _make_conn
 
 def test_successful_ticker_update_persists_price():
@@ -13,7 +13,7 @@ def test_successful_ticker_update_persists_price():
     df_stub = pd.DataFrame({"Close": [190.50]})
 
     with patch.object(update_prices.yf, "download", return_value=df_stub), \
-         patch("update_prices.upsert_stock_price") as mock_upsert:
+         patch("app.update_prices.upsert_stock_price") as mock_upsert:
 
         config = {"fetch_timeout": 30}
         success, errors, details = run_batch(conn, ["AAPL"], config)
@@ -33,8 +33,8 @@ def test_failed_ticker_continues_processing_remaining():
     conn, cur = _make_conn()
 
     with patch.object(update_prices.yf, "download") as mock_download, \
-         patch.object(update_prices.yf.Ticker, "side_effect") as mock_ticker_se, \
-         patch("update_prices.upsert_stock_price") as mock_upsert:
+         patch("app.update_prices.yf.Ticker") as mock_ticker, \
+         patch("app.update_prices.upsert_stock_price") as mock_upsert:
 
         import pandas as pd
         mock_download.return_value = pd.DataFrame()
@@ -47,7 +47,7 @@ def test_failed_ticker_continues_processing_remaining():
             t.fast_info = aapl_info if sym == "AAPL" else msft_info
             return t
 
-        update_prices.yf.Ticker.side_effect = _ticker_side_effect
+        mock_ticker.side_effect = _ticker_side_effect
 
         config = {"fetch_timeout": 30}
         success, errors, details = run_batch(conn, ["AAPL", "MSFT"], config)
@@ -69,7 +69,7 @@ def test_yfinance_timeout_does_not_interrupt_batch():
 
     with patch.object(update_prices.yf, "download", side_effect=_slow_download), \
          patch.object(update_prices.yf, "Ticker") as mock_ticker, \
-         patch("update_prices.upsert_stock_price") as mock_upsert:
+         patch("app.update_prices.upsert_stock_price") as mock_upsert:
         ticker_mock = MagicMock()
         ticker_mock.fast_info = MagicMock()
         ticker_mock.fast_info.get.return_value = None
@@ -89,8 +89,8 @@ def test_nan_price_is_skipped():
     import pandas as pd
     df_stub = pd.DataFrame({"Close": [float("nan")]})
     with patch.object(update_prices.yf, "download", return_value=df_stub), \
-         patch("update_prices.fetch_price_single", return_value=None), \
-         patch("update_prices.upsert_stock_price") as mock_upsert:
+         patch("app.update_prices.fetch_price_single", return_value=None), \
+         patch("app.update_prices.upsert_stock_price") as mock_upsert:
         success, errors, details = run_batch(conn, ["AAPL"], {"fetch_timeout": 30})
     assert success == 0
     assert errors == 1
@@ -102,8 +102,8 @@ def test_zero_price_is_skipped():
     import pandas as pd
     df_stub = pd.DataFrame({"Close": [0.0]})
     with patch.object(update_prices.yf, "download", return_value=df_stub), \
-         patch("update_prices.fetch_price_single", return_value=None), \
-         patch("update_prices.upsert_stock_price") as mock_upsert:
+         patch("app.update_prices.fetch_price_single", return_value=None), \
+         patch("app.update_prices.upsert_stock_price") as mock_upsert:
         success, errors, details = run_batch(conn, ["AAPL"], {"fetch_timeout": 30})
     assert success == 0
     assert errors == 1
@@ -115,8 +115,8 @@ def test_negative_price_is_skipped():
     import pandas as pd
     df_stub = pd.DataFrame({"Close": [-12.50]})
     with patch.object(update_prices.yf, "download", return_value=df_stub), \
-         patch("update_prices.fetch_price_single", return_value=None), \
-         patch("update_prices.upsert_stock_price") as mock_upsert:
+         patch("app.update_prices.fetch_price_single", return_value=None), \
+         patch("app.update_prices.upsert_stock_price") as mock_upsert:
         success, errors, details = run_batch(conn, ["AAPL"], {"fetch_timeout": 30})
     assert success == 0
     assert errors == 1
@@ -127,7 +127,7 @@ def test_fast_info_empty_dict_is_handled():
     conn, cur = _make_conn()
     with patch.object(update_prices.yf, "download", return_value=None), \
          patch.object(update_prices.yf, "Ticker") as mock_ticker, \
-         patch("update_prices.upsert_stock_price") as mock_upsert:
+         patch("app.update_prices.upsert_stock_price") as mock_upsert:
         ticker_mock = MagicMock()
         ticker_mock.fast_info = {}
         mock_ticker.return_value = ticker_mock
@@ -140,7 +140,7 @@ def test_fast_info_none_is_handled():
     conn, cur = _make_conn()
     with patch.object(update_prices.yf, "download", return_value=None), \
          patch.object(update_prices.yf, "Ticker") as mock_ticker, \
-         patch("update_prices.upsert_stock_price") as mock_upsert:
+         patch("app.update_prices.upsert_stock_price") as mock_upsert:
         ticker_mock = MagicMock()
         ticker_mock.fast_info = None
         mock_ticker.return_value = ticker_mock
@@ -153,7 +153,7 @@ def test_fast_info_object_missing_get_is_handled():
     conn, cur = _make_conn()
     with patch.object(update_prices.yf, "download", return_value=None), \
          patch.object(update_prices.yf, "Ticker") as mock_ticker, \
-         patch("update_prices.upsert_stock_price") as mock_upsert:
+         patch("app.update_prices.upsert_stock_price") as mock_upsert:
         ticker_mock = MagicMock()
         ticker_mock.fast_info = object()
         mock_ticker.return_value = ticker_mock
@@ -174,7 +174,7 @@ def test_duplicate_tickers_are_deduplicated():
     import pandas as pd
     df_stub = pd.DataFrame({"Close": [150.0]})
     with patch.object(update_prices.yf, "download", return_value=df_stub), \
-         patch("update_prices.upsert_stock_price") as mock_upsert:
+         patch("app.update_prices.upsert_stock_price") as mock_upsert:
         success, errors, details = run_batch(conn, ["AAPL", "AAPL", "AAPL"], {"fetch_timeout": 30})
     assert success == 1
     assert errors == 0

@@ -2,8 +2,8 @@ from datetime import datetime, timezone
 import pytest
 import psycopg2
 from unittest.mock import patch, MagicMock
-import update_prices
-from update_prices import upsert_stock_price, get_unique_tickers, run_batch
+import app.update_prices as update_prices
+from app.update_prices import upsert_stock_price, get_unique_tickers, run_batch
 from helpers import _make_conn
 
 def test_upsert_uses_correct_sql_and_values():
@@ -41,8 +41,8 @@ def test_database_failure_aborts_batch():
     tickers = ["AAPL", "MSFT"]
     config = {"fetch_timeout": 30}
 
-    with patch("update_prices.fetch_prices_batch", return_value={"AAPL": 150.0, "MSFT": 200.0}), \
-         patch("update_prices.upsert_stock_price", side_effect=psycopg2.DatabaseError("Connection lost")) as mock_upsert:
+    with patch("app.update_prices.fetch_prices_batch", return_value={"AAPL": 150.0, "MSFT": 200.0}), \
+         patch("app.update_prices.upsert_stock_price", side_effect=psycopg2.DatabaseError("Connection lost")) as mock_upsert:
         
         with pytest.raises(psycopg2.DatabaseError):
             run_batch(conn, tickers, config)
@@ -60,8 +60,8 @@ def test_non_db_exception_continues_batch():
             raise ValueError("Invalid format")
         return
 
-    with patch("update_prices.fetch_prices_batch", return_value={"AAPL": 150.0, "MSFT": 200.0}), \
-         patch("update_prices.upsert_stock_price", side_effect=_upsert_side_effect) as mock_upsert:
+    with patch("app.update_prices.fetch_prices_batch", return_value={"AAPL": 150.0, "MSFT": 200.0}), \
+         patch("app.update_prices.upsert_stock_price", side_effect=_upsert_side_effect) as mock_upsert:
         
         success, errors, details = run_batch(conn, tickers, config)
         

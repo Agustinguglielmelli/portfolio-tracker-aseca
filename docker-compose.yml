@@ -15,10 +15,10 @@ services:
       context: ./python-worker
     ports:
       - "8000:8000"
+    env_file:
+      - ./python-worker/.env
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-      TICKERS_OVERRIDE: ${TICKERS_OVERRIDE:-}
-      FETCH_TIMEOUT: ${FETCH_TIMEOUT:-30}
     depends_on:
       - db
     restart: on-failure

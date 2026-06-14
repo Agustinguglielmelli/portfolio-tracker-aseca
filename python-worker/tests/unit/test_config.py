@@ -1,7 +1,7 @@
 import pytest
-import update_prices
+import app.update_prices as update_prices
 from unittest.mock import patch
-from update_prices import get_config, run_batch
+from app.update_prices import get_config, run_batch
 from helpers import _make_conn
 
 def test_get_config_reads_tickers_override_env_var(monkeypatch):
@@ -34,7 +34,7 @@ def test_exit_code_nonzero_on_missing_database_url(monkeypatch):
     monkeypatch.delenv("DATABASE_URL", raising=False)
 
     with pytest.raises(SystemExit) as exc_info:
-        from update_prices import get_db_connection
+        from app.update_prices import get_db_connection
         get_db_connection()
 
     assert exc_info.value.code == 1
@@ -50,18 +50,18 @@ def test_tickers_override_skips_db_query(monkeypatch):
 
 def test_run_batch_fallback_timeout_missing_or_invalid():
     conn, cur = _make_conn()
-    with patch("update_prices.fetch_prices_batch", return_value={}) as mock_fetch:
+    with patch("app.update_prices.fetch_prices_batch", return_value={}) as mock_fetch:
         run_batch(conn, ["AAPL"], {})
         mock_fetch.assert_called_once_with(["AAPL"], 30)
 
 def test_run_batch_fallback_timeout_zero():
     conn, cur = _make_conn()
-    with patch("update_prices.fetch_prices_batch", return_value={}) as mock_fetch:
+    with patch("app.update_prices.fetch_prices_batch", return_value={}) as mock_fetch:
         run_batch(conn, ["AAPL"], {"fetch_timeout": 0})
         mock_fetch.assert_called_once_with(["AAPL"], 30)
 
 def test_run_batch_fallback_timeout_negative():
     conn, cur = _make_conn()
-    with patch("update_prices.fetch_prices_batch", return_value={}) as mock_fetch:
+    with patch("app.update_prices.fetch_prices_batch", return_value={}) as mock_fetch:
         run_batch(conn, ["AAPL"], {"fetch_timeout": -5})
         mock_fetch.assert_called_once_with(["AAPL"], 30)
