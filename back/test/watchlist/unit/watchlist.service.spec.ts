@@ -63,4 +63,17 @@ describe('WatchlistService', () => {
       expect(deleteSpy).toHaveBeenCalledWith(1, 'AAPL');
     });
   });
+
+  describe('getList', () => {
+    it('debe retornar la lista de empresas con sus precios', async () => {
+      const mockData = [{ ticker: 'AAPL', price: 150, updatedAt: new Date() }];
+      const findSpy = jest
+        .spyOn(repo, 'findListWithPrices')
+        .mockResolvedValue(mockData);
+
+      const result = await service.getList(1);
+      expect(result).toEqual(mockData);
+      expect(findSpy).toHaveBeenCalledWith(1);
+    });
+  });
 });
