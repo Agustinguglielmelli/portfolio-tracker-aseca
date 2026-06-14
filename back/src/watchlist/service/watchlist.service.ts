@@ -44,4 +44,8 @@ export class WatchlistService {
     }
     return this.watchlistRepository.delete(userId, upperTicker);
   }
+
+  async getList(userId: number) {
+    return this.watchlistRepository.findListWithPrices(userId);
+  }
 }

@@ -26,4 +26,25 @@ export class WatchlistRepository {
       },
     });
   }
+
+  async findListWithPrices(userId: number) {
+    const items = await this.prisma.watchlistItem.findMany({
+      where: { userId },
+    });
+
+    const tickers = items.map((i) => i.ticker);
+
+    const prices = await this.prisma.stockPrice.findMany({
+      where: { ticker: { in: tickers } },
+    });
+
+    return items.map((item) => {
+      const priceData = prices.find((p) => p.ticker === item.ticker);
+      return {
+        ticker: item.ticker,
+        price: priceData?.price || null,
+        updatedAt: priceData?.updatedAt || null,
+      };
+    });
+  }
 }

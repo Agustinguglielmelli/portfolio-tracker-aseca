@@ -36,4 +36,9 @@ export class WatchlistController {
   ) {
     return this.watchlistService.remove(req.user.userId, ticker);
   }
+
+  @Get()
+  async getList(@Request() req) {
+    return this.watchlistService.getList(req.user.userId);
+  }
 }
