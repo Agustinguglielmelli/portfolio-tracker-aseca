@@ -6,6 +6,7 @@ import {
   Request,
   Param,
   Delete,
+  Get,
 } from '@nestjs/common';
 import { WatchlistService } from './service/watchlist.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -35,5 +36,10 @@ export class WatchlistController {
     @Param('ticker') ticker: string,
   ) {
     return this.watchlistService.remove(req.user.userId, ticker);
+  }
+
+  @Get()
+  async getList(@Request() req) {
+    return this.watchlistService.getList(req.user.userId);
   }
 }
