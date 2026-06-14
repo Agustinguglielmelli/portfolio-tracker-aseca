@@ -6,6 +6,7 @@ import {
   Request,
   Param,
   Delete,
+  Get,
 } from '@nestjs/common';
 import { WatchlistService } from './service/watchlist.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
