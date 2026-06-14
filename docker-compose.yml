@@ -70,5 +70,18 @@ services:
     ports:
       - "5433:5432"
 
+  locust:
+    build:
+      context: ./locust
+    ports:
+      - "8089:8089"
+    environment:
+      LOCUST_HOST: http://backend:3000
+    depends_on:
+      - backend
+    profiles:
+      - load-test
+    command: --host http://backend:3000
+
 volumes:
   pgdata:
