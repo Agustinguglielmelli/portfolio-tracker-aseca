@@ -4,7 +4,6 @@ import { PricesSummary } from './PricesSummary';
 import { PricesTable } from './PricesTable';
 import { PricesEmptyState, PricesStaleWarning } from './PricesAlerts';
 
-// US 3.4 — Shape of the response from GET /prices/last-update
 interface TickerDetail {
     ticker: string;
     price?: number;
@@ -20,14 +19,12 @@ interface LastUpdateInfo {
     details: TickerDetail[];
 }
 
-// US 3.4 — Helper: returns true if the timestamp is older than 24 hours
 function isStale(isoTimestamp: string): boolean {
     const updatedAt = new Date(isoTimestamp).getTime();
     const now = Date.now();
-    return now - updatedAt > 24 * 60 * 60 * 1000; // US 3.4
+    return now - updatedAt > 24 * 60 * 60 * 1000;
 }
 
-// US 3.4 — Format ISO timestamp to a human-readable local date/time string
 function formatTimestamp(isoTimestamp: string): string {
     return new Date(isoTimestamp).toLocaleString('es-AR', {
         dateStyle: 'full',
@@ -36,7 +33,6 @@ function formatTimestamp(isoTimestamp: string): string {
 }
 
 export function PricesUpdateWidget() {
-    // US 3.4 — State for last update data
     const [lastUpdateInfo, setLastUpdateInfo] = useState<LastUpdateInfo | null>(null);
     const [loading, setLoading] = useState(true);
     const [updating, setUpdating] = useState(false);
@@ -56,7 +52,6 @@ export function PricesUpdateWidget() {
             .finally(() => setLoading(false));
     };
 
-    // US 3.4 — Fetch last update on mount
     useEffect(() => {
         fetchStatus();
     }, []);
@@ -66,7 +61,6 @@ export function PricesUpdateWidget() {
         setFetchError(null);
         try {
             await pricesApi.updatePrices();
-            // Refresh data after successful update
             fetchStatus();
         } catch (error: any) {
             setFetchError(error.message || 'Error al disparar la actualización');
@@ -76,10 +70,9 @@ export function PricesUpdateWidget() {
     };
 
     const stale =
-        lastUpdateInfo?.lastUpdate ? isStale(lastUpdateInfo.lastUpdate) : false; // US 3.4
+        lastUpdateInfo?.lastUpdate ? isStale(lastUpdateInfo.lastUpdate) : false;
 
     return (
-        /* <!-- US 3.4 --> */
         <div
             id="last-update-widget"
             className={`rounded-2xl border p-6 mb-6 transition-all duration-300 ${
@@ -127,7 +120,6 @@ export function PricesUpdateWidget() {
                 </button>
             </div>
 
-            {/* Loading state */}
             {(loading || updating) && (
                 <div className="flex items-center gap-2 text-slate-400 mb-4">
                     <div className="w-4 h-4 border-2 border-slate-500 border-t-blue-400 rounded-full animate-spin" />
@@ -137,25 +129,19 @@ export function PricesUpdateWidget() {
                 </div>
             )}
 
-            {/* Error fetching */}
             {!(loading || updating) && fetchError && (
                 <p className="text-red-400 text-sm mb-4">
                     Error: {fetchError}
                 </p>
             )}
 
-            {/* US 3.4 — Empty state: batch has never run */}
             {!(loading || updating) && !fetchError && !lastUpdateInfo?.lastUpdate && (
                 <PricesEmptyState message={lastUpdateInfo?.message || ''} />
             )}
 
-            {/* US 3.4 — Timestamp and details when data is available */}
             {!(loading || updating) && !fetchError && lastUpdateInfo?.lastUpdate && (
                 <div>
-                    {/* US 3.4 — Stale warning (older than 24 hours) */}
                     {stale && <PricesStaleWarning />}
-
-                    {/* US 3.4 — Last update timestamp display */}
                     <div className="mb-4">
                         <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">
                             Última ejecución
@@ -164,19 +150,14 @@ export function PricesUpdateWidget() {
                             id="last-update-timestamp"
                             className={`text-xl font-bold ${stale ? 'text-orange-300' : 'text-emerald-300'}`}
                         >
-                            {/* <!-- US 3.4 --> */}
                             {formatTimestamp(lastUpdateInfo.lastUpdate)}
                         </p>
                     </div>
-
-                    {/* Batch summary stats */}
                     <PricesSummary 
                         processed={lastUpdateInfo.tickersProcessed} 
                         success={lastUpdateInfo.success} 
                         errors={lastUpdateInfo.errors} 
                     />
-
-                    {/* US 3.4 — Per-ticker detail table */}
                     <PricesTable details={lastUpdateInfo.details} />
                 </div>
             )}
