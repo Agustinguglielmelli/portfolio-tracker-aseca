@@ -20,7 +20,8 @@ export default defineConfig({
             on('task', {
                 async 'db:deleteUser'(email: string) {
                     const client = await getClient();
-                    await client.query('DELETE FROM "transactions" WHERE "userId" = (SELECT id FROM "User" WHERE email = $1)', [email]);
+                    await client.query('DELETE FROM transactions WHERE "userId" = (SELECT id FROM "User" WHERE email = $1)', [email]);
+                    await client.query('DELETE FROM "WatchlistItem" WHERE "userId" = (SELECT id FROM "User" WHERE email = $1)', [email]);
                     await client.query('DELETE FROM "User" WHERE email = $1', [email]);
                     await client.end();
                     return null;
@@ -39,6 +40,12 @@ export default defineConfig({
                         'INSERT INTO "StockPrice" (ticker, price, "updatedAt") VALUES ($1, $2, NOW()) ON CONFLICT (ticker) DO UPDATE SET price = $2, "updatedAt" = NOW()',
                         [ticker, price]
                     );
+                    await client.end();
+                    return null;
+                },
+                async 'db:deleteUserWatchlist'(email: string) {
+                    const client = await getClient();
+                    await client.query('DELETE FROM "WatchlistItem" WHERE "userId" = (SELECT id FROM "User" WHERE email = $1)', [email]);
                     await client.end();
                     return null;
                 },

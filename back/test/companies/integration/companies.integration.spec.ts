@@ -3,11 +3,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { AppModule } from '../../../src/app.module';
+import { PrismaService } from '../../../src/prisma/prisma.service';
 
 jest.setTimeout(60000);
 
 describe('Companies Integration', () => {
   let app: INestApplication;
+  let prisma: PrismaService;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -15,6 +17,7 @@ describe('Companies Integration', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    prisma = app.get<PrismaService>(PrismaService);
     await app.init();
   });
 
@@ -91,6 +94,7 @@ describe('Companies Integration', () => {
   });
 
   afterAll(async () => {
+    await prisma.$disconnect();
     await app.close();
   });
 });

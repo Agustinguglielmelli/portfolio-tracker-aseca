@@ -107,7 +107,7 @@ export default function Watchlist() {
                             setQuery={setQuery}
                         />
                     </div>
-                    <button type="submit" className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl text-sm transition shadow-lg shadow-blue-600/30 h-11">
+                    <button type="submit" data-cy="add-to-watchlist" className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl text-sm transition shadow-lg shadow-blue-600/30 h-11">
                         Agregar
                     </button>
                 </form>
@@ -117,10 +117,11 @@ export default function Watchlist() {
                         <p className="text-slate-400 p-6 text-center">No tienes empresas en tu watchlist actualmente.</p>
                     ) : (
                         watchlist.map((item) => (
-                            <div key={item.ticker} className="p-4 flex justify-between items-center hover:bg-slate-700/40 transition-colors">
+                            <div key={item.ticker} data-cy={`watchlist-item-${item.ticker}`} className="p-4 flex justify-between items-center hover:bg-slate-700/40 transition-colors">
                                 <div className="flex items-center gap-4">
                                     <input
                                         type="checkbox"
+                                        data-cy={`watchlist-checkbox-${item.ticker}`}
                                         checked={selectedTickers.includes(item.ticker)}
                                         onChange={() => toggleSelect(item.ticker)}
                                         className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-blue-600 focus:ring-blue-500/50 cursor-pointer"
@@ -129,6 +130,7 @@ export default function Watchlist() {
                                 </div>
                                 <button
                                     onClick={() => handleRemove(item.ticker)}
+                                    data-cy={`remove-watchlist-${item.ticker}`}
                                     className="px-4 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg text-sm transition"
                                 >
                                     Eliminar
@@ -139,7 +141,9 @@ export default function Watchlist() {
                 </div>
 
                 {selectedTickers.length > 0 && (
-                    <WatchlistComparison tickers={selectedTickers} />
+                    <div data-cy="watchlist-comparison">
+                        <WatchlistComparison tickers={selectedTickers} />
+                    </div>
                 )}
             </div>
         </div>
