@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Get,
+  Query,
 } from '@nestjs/common';
 import { WatchlistService } from './service/watchlist.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -41,5 +42,15 @@ export class WatchlistController {
   @Get()
   async getList(@Request() req: RequestWithUser) {
     return this.watchlistService.getList(req.user.sub);
+  }
+
+  @Get('compare')
+  async compare(
+    @Request() req: RequestWithUser,
+    @Query('tickers') tickers: string,
+  ) {
+    if (!tickers) return [];
+    const tickerArray = tickers.split(',');
+    return this.watchlistService.compare(req.user.userId, tickerArray);
   }
 }

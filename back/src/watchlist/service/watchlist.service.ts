@@ -48,4 +48,25 @@ export class WatchlistService {
   async getList(userId: number) {
     return this.watchlistRepository.findListWithPrices(userId);
   }
+
+  async compare(userId: number, tickers: string[]) {
+    const userItems = await this.watchlistRepository.findListWithPrices(userId);
+    const validTickers = userItems.map((i) => i.ticker);
+
+    const toCompare = tickers.filter((t) =>
+      validTickers.includes(t.toUpperCase()),
+    );
+
+    const results: any[] = [];
+
+    for (const t of toCompare) {
+      try {
+        const metrics = await this.companiesService.getMetrics(t);
+        results.push({ ticker: t, ...metrics });
+      } catch {
+        console.warn(`No se pudieron obtener métricas para ${t}`);
+      }
+    }
+    return results;
+  }
 }
