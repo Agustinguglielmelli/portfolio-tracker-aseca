@@ -26,7 +26,6 @@ export function PricesTable({ details }: PricesTableProps) {
                         </tr>
                     </thead>
                     <tbody>
-                        {/* <!-- US 3.4 --> */}
                         {details.map((d, idx) => (
                             <tr
                                 key={d.ticker}

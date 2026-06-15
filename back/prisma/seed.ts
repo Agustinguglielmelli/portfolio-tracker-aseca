@@ -8,6 +8,7 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 // US 3.1 — Seed script: creates the default Admin user on database initialization
+// Also seeds StockPrice entries used by Locust load tests and initial buy/sell operations.
 async function main() {
   console.log('Seeding database...');
 
@@ -32,6 +33,27 @@ async function main() {
     console.log('Email: admin@admin.com');
     console.log('Password: admin123');
   }
+
+  // Seed stock prices so buy/sell operations work out of the box.
+  // The python-worker batch will overwrite these with live prices on its next run.
+  const stockPrices = [
+    { ticker: 'AAPL',  price: 189.30 },
+    { ticker: 'MSFT',  price: 415.50 },
+    { ticker: 'GOOGL', price: 175.80 },
+    { ticker: 'TSLA',  price: 245.60 },
+    { ticker: 'AMZN',  price: 198.40 },
+    { ticker: 'NVDA',  price: 875.20 },
+    { ticker: 'META',  price: 530.10 },
+  ];
+
+  for (const { ticker, price } of stockPrices) {
+    await prisma.stockPrice.upsert({
+      where: { ticker },
+      update: {},          // Don't overwrite if already set by the batch worker
+      create: { ticker, price, updatedAt: new Date() },
+    });
+  }
+  console.log(`Seeded ${stockPrices.length} stock prices.`);
 
   console.log('Seeding finished.');
 }
