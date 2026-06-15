@@ -51,6 +51,6 @@ export class WatchlistController {
   ) {
     if (!tickers) return [];
     const tickerArray = tickers.split(',');
-    return this.watchlistService.compare(req.user.userId, tickerArray);
+    return this.watchlistService.compare(req.user.sub, tickerArray);
   }
 }
