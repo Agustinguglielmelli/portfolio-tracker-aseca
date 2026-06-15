@@ -17,7 +17,7 @@ export class CompaniesRepository implements OnModuleInit {
   private readonly secRateLimiter = pLimit(5);
 
   private readonly secHeaders = {
-    'User-Agent': 'Portfolio-Tracker/1.0 (a@gmail.com)',
+    'User-Agent': 'Portfolio-Tracker/1.0 (rgomez@mail.austral.edu.ar)',
     'Accept-Encoding': 'gzip, deflate',
     Host: 'data.sec.gov',
   };

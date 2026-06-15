@@ -93,3 +93,26 @@ export const pricesApi = {
     return response.json();
   },
 };
+
+export const companiesApi = {
+  async search(query: string) {
+    const response = await fetch(`${API_URL}/companies/search?q=${query}`);
+    if (!response.ok) throw new Error('Error buscando empresas');
+    return response.json();
+  },
+  async getMetrics(ticker: string) {
+    const response = await fetch(`${API_URL}/companies/${ticker}/metrics`);
+    if (!response.ok) throw new Error('Error al cargar métricas');
+    return response.json();
+  },
+  async getFilings(ticker: string) {
+    const response = await fetch(`${API_URL}/companies/${ticker}/filings`);
+    if (!response.ok) throw new Error('Error al cargar filings');
+    return response.json();
+  },
+  async getHistorical(ticker: string) {
+    const response = await fetch(`${API_URL}/companies/${ticker}/historical-metrics`);
+    if (!response.ok) throw new Error('Error al cargar historial');
+    return response.json();
+  }
+};
