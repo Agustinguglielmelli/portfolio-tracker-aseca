@@ -28,7 +28,6 @@ describe('PortfolioController Integration', () => {
   });
 
   beforeEach(async () => {
-    // Borrar transacciones primero para no violar la foreign key
     await prisma.portfolioTransaction.deleteMany({
       where: { user: { email: 'portfolio_test@example.com' } },
     });
