@@ -427,6 +427,9 @@ export default function DashboardScreen() {
           <TouchableOpacity style={styles.watchlistBtn} onPress={() => router.push('/(app)/watchlist')}>
             <Text style={styles.watchlistBtnText}>Watchlist</Text>
           </TouchableOpacity>
+          <TouchableOpacity style={styles.watchlistBtn} onPress={() => router.push('/(app)/companies')}>
+            <Text style={styles.watchlistBtnText}>Empresas</Text>
+          </TouchableOpacity>
           <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
             <Text style={styles.logoutBtnText}>Salir</Text>
           </TouchableOpacity>
