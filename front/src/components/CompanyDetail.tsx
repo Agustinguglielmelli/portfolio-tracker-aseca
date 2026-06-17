@@ -42,9 +42,15 @@ interface ChartDataPoint {
 
 const formatCurrency = (val: number | null | undefined) => {
     if (val === null || val === undefined) return 'N/A';
-    if (val > 1e9) return `$${(val / 1e9).toFixed(2)}B`;
-    if (val > 1e6) return `$${(val / 1e6).toFixed(2)}M`;
-    return `$${val.toLocaleString()}`;
+
+    const isNegative = val < 0;
+    const absVal = Math.abs(val);
+    const sign = isNegative ? '-' : '';
+
+    if (absVal >= 1e9) return `${sign}$${(absVal / 1e9).toFixed(2)}B`;
+    if (absVal >= 1e6) return `${sign}$${(absVal / 1e6).toFixed(2)}M`;
+
+    return `${sign}$${absVal.toLocaleString()}`;
 };
 
 const formatChartData = (history: HistoricalData | null): ChartDataPoint[] => {
@@ -194,7 +200,18 @@ export const CompanyDetail = () => {
                                     </span>
                                     <span className="text-slate-400 text-sm font-mono">{filing.accessionNumber}</span>
                                 </div>
-                                <div className="text-slate-400 text-sm mt-2 sm:mt-0">{filing.date}</div>
+                                <div className="flex items-center gap-4 mt-2 sm:mt-0">
+                                    <span className="text-slate-400 text-sm">{filing.date}</span>
+
+                                    <a
+                                        href={`https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&accession=${filing.accessionNumber}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-400 hover:text-blue-300 text-xs underline"
+                                    >
+                                        Ver filing →
+                                    </a>
+                                </div>
                             </div>
                         )) : (
                             <p className="text-slate-500 text-center py-6">No hay filings recientes disponibles.</p>
@@ -206,7 +223,7 @@ export const CompanyDetail = () => {
     );
 };
 
-const MetricCard = ({ title, value }: { title: string; value: string | number }) => (
+const MetricCard = ({title, value}: { title: string; value: string | number }) => (
     <div className="bg-slate-800/50 border border-slate-700/60 p-5 rounded-2xl hover:border-slate-600/60 transition-colors">
         <h3 className="text-slate-400 text-xs font-medium uppercase tracking-widest">{title}</h3>
         <p className="text-2xl font-bold mt-2 text-slate-100">{value}</p>

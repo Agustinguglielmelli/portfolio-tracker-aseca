@@ -1,6 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { CompaniesService } from '../../../src/companies/service/companies.service';
 import { CompaniesRepository } from '../../../src/companies/repository/companies.repository';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 describe('CompaniesService', () => {
   let service: CompaniesService;
@@ -19,6 +20,14 @@ describe('CompaniesService', () => {
         {
           provide: CompaniesRepository,
           useValue: repoMock,
+        },
+        {
+          provide: CACHE_MANAGER,
+          useValue: {
+            get: jest.fn(),
+            set: jest.fn(),
+            del: jest.fn(),
+          },
         },
       ],
     }).compile();
