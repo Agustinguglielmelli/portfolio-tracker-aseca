@@ -129,17 +129,6 @@ export const watchlistApi = {
   },
 };
 
-export const companiesApi = {
-  async search(q: string): Promise<{ ticker: string; name: string }[]> {
-    const token = await getToken();
-    const response = await fetch(`${API_URL}/companies/search?q=${encodeURIComponent(q)}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (!response.ok) throw new Error('Error al buscar empresas');
-    return response.json();
-  },
-};
-
 export interface LastUpdateData {
   lastUpdate: string | null;
   message: string;
@@ -160,24 +149,36 @@ export const pricesApi = {
 };
 
 export const companiesApi = {
-  async search(query: string) {
-    const response = await fetch(`${API_URL}/companies/search?q=${query}`);
-    if (!response.ok) throw new Error('Error buscando empresas');
+  async search(q: string): Promise<{ ticker: string; name: string }[]> {
+    const token = await getToken();
+    const response = await fetch(`${API_URL}/companies/search?q=${encodeURIComponent(q)}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) throw new Error('Error al buscar empresas');
     return response.json();
   },
   async getMetrics(ticker: string) {
-    const response = await fetch(`${API_URL}/companies/${ticker}/metrics`);
+    const token = await getToken();
+    const response = await fetch(`${API_URL}/companies/${ticker}/metrics`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     if (!response.ok) throw new Error('Error al cargar métricas');
     return response.json();
   },
   async getFilings(ticker: string) {
-    const response = await fetch(`${API_URL}/companies/${ticker}/filings`);
+    const token = await getToken();
+    const response = await fetch(`${API_URL}/companies/${ticker}/filings`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     if (!response.ok) throw new Error('Error al cargar filings');
     return response.json();
   },
   async getHistorical(ticker: string) {
-    const response = await fetch(`${API_URL}/companies/${ticker}/historical-metrics`);
+    const token = await getToken();
+    const response = await fetch(`${API_URL}/companies/${ticker}/historical-metrics`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     if (!response.ok) throw new Error('Error al cargar historial');
     return response.json();
-  }
+  },
 };
