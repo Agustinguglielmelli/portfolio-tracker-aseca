@@ -55,10 +55,42 @@ describe('AuthService', () => {
       );
     });
 
-    it('should throw BadRequestException if email or password exceeds 256 characters', async () => {
+    it('should throw BadRequestException if email and password exceeds 256 characters', async () => {
       const longString = 'a'.repeat(257);
       const testUser: RegisterDto = {
         email: `${longString}@example.com`,
+        password: longString,
+        confirmPassword: longString,
+      };
+
+      await expect(service.register(testUser)).rejects.toThrow(
+        BadRequestException,
+      );
+      await expect(service.register(testUser)).rejects.toThrow(
+        'El mail y la contraseña no pueden ser mayores a 256 caracteres.',
+      );
+    });
+
+    it('should throw BadRequestException if email exceeds 256 characters', async () => {
+      const longString = 'a'.repeat(257);
+      const testUser: RegisterDto = {
+        email: `${longString}@example.com`,
+        password: 'Password123!',
+        confirmPassword: 'Password123!',
+      };
+
+      await expect(service.register(testUser)).rejects.toThrow(
+        BadRequestException,
+      );
+      await expect(service.register(testUser)).rejects.toThrow(
+        'El mail y la contraseña no pueden ser mayores a 256 caracteres.',
+      );
+    });
+
+    it('should throw BadRequestException if password exceeds 256 characters', async () => {
+      const longString = 'a'.repeat(257);
+      const testUser: RegisterDto = {
+        email: `person@example.com`,
         password: longString,
         confirmPassword: longString,
       };
@@ -119,6 +151,27 @@ describe('AuthService', () => {
       );
     });
 
+    it('should not throw length validation error if email and password are exactly 255 characters', async () => {
+      const exactString = 'a'.repeat(243) + '@example.com';
+      const testUser: RegisterDto = {
+        email: exactString,
+        password: 'a'.repeat(255),
+        confirmPassword: 'a'.repeat(255),
+      };
+
+      mockAuthRepository.findUserByEmail.mockResolvedValue(null);
+      mockAuthRepository.createUser.mockResolvedValue({
+        id: 1,
+        email: exactString,
+        role: 'USER',
+      });
+      (bcrypt.hash as jest.Mock).mockResolvedValue('hashedPassword');
+      mockJwtService.sign.mockReturnValue('token');
+
+      const result = await service.register(testUser);
+      expect(result.access_token).toBeDefined();
+    });
+
     it('should register user with mail and password and return access_token', async () => {
       const testUser: RegisterDto = {
         email: 'nuevo@example.com',
@@ -154,10 +207,40 @@ describe('AuthService', () => {
   });
 
   describe('login', () => {
-    it('should throw BadRequestException if email or password exceeds 256 characters', async () => {
+    it('should throw BadRequestException if email and password exceeds 256 characters', async () => {
       const longString = 'a'.repeat(257);
       const loginDto = {
         email: `${longString}@example.com`,
+        password: longString,
+      };
+
+      await expect(service.login(loginDto)).rejects.toThrow(
+        BadRequestException,
+      );
+      await expect(service.login(loginDto)).rejects.toThrow(
+        'El mail y la contraseña no pueden ser mayores a 256 caracteres.',
+      );
+    });
+
+    it('should throw BadRequestException if email exceeds 256 characters', async () => {
+      const longString = 'a'.repeat(257);
+      const loginDto = {
+        email: `${longString}@example.com`,
+        password: 'Password123!',
+      };
+
+      await expect(service.login(loginDto)).rejects.toThrow(
+        BadRequestException,
+      );
+      await expect(service.login(loginDto)).rejects.toThrow(
+        'El mail y la contraseña no pueden ser mayores a 256 caracteres.',
+      );
+    });
+
+    it('should throw BadRequestException if password exceeds 256 characters', async () => {
+      const longString = 'a'.repeat(257);
+      const loginDto = {
+        email: `persona@example.com`,
         password: longString,
       };
 
@@ -207,6 +290,25 @@ describe('AuthService', () => {
       await expect(service.login(loginDto)).rejects.toThrow(
         'Credenciales inválidas',
       );
+    });
+
+    it('should not throw length validation error if email and password are exactly 255 characters', async () => {
+      const exactString = 'a'.repeat(243) + '@example.com';
+      const loginDto = {
+        email: exactString,
+        password: 'a'.repeat(255),
+      };
+
+      mockAuthRepository.findUserByEmail.mockResolvedValue({
+        id: 1,
+        password: 'hashedPassword',
+        role: 'USER',
+      });
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+      mockJwtService.sign.mockReturnValue('token');
+
+      const result = await service.login(loginDto);
+      expect(result.token).toBeDefined();
     });
 
     it('should login successfully and return a token', async () => {
