@@ -22,8 +22,10 @@ export class CompaniesService {
     const cacheKey = `search_${query.trim().toLowerCase()}`;
     const cachedResult = await this.cacheManager.get(cacheKey);
     if (cachedResult) {
+      console.log('Cache hit!');
       return cachedResult;
     }
+    console.log('Cache miss');
 
     const data = await this.companiesRepository.searchCompaniesRaw(query);
 

@@ -1,0 +1,25 @@
+# Dependencias y compilados locales
+node_modules
+npm-debug.log
+dist
+build
+coverage
+
+# Archivos de entorno y secretos (¡nunca deben ir en la imagen!)
+.env
+.env.*
+*.pem
+
+# Git y carpetas de editores
+.git
+.gitignore
+.vscode
+.idea
+
+# Archivos de SO
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.yml
+Dockerfile
