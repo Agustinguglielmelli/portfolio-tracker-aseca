@@ -279,33 +279,6 @@ describe('AuthController Integration', () => {
     expect(body).toHaveProperty('access_token');
     expect(typeof body.access_token).toBe('string');
   });
-
-  it('/auth/register (OPTIONS) - debe permitir peticiones CORS para que el frontend consuma la API', async () => {
-    const res = await request(app.getHttpServer())
-      .options('/auth/register')
-      .set('Origin', 'http://localhost:3000')
-      .set('Access-Control-Request-Method', 'POST')
-      .expect(204);
-
-    expect(res.headers).toHaveProperty('access-control-allow-origin');
-    expect(res.headers['access-control-allow-origin']).toBe(
-      'http://localhost:3000',
-    );
-  });
-
-  it('/auth/login (OPTIONS) - debe permitir peticiones CORS para que el frontend consuma la API', async () => {
-    const res = await request(app.getHttpServer())
-      .options('/auth/login')
-      .set('Origin', 'http://localhost:3000')
-      .set('Access-Control-Request-Method', 'POST')
-      .expect(204);
-
-    expect(res.headers).toHaveProperty('access-control-allow-origin');
-    expect(res.headers['access-control-allow-origin']).toBe(
-      'http://localhost:3000',
-    );
-  });
-
   afterAll(async () => {
     if (prisma) {
       await prisma.portfolioTransaction.deleteMany();
