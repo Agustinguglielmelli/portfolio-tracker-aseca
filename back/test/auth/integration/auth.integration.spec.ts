@@ -1,6 +1,6 @@
 /// <reference types="jest" />
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { AppModule } from '../../../src/app.module';
 import { PrismaService } from '../../../src/prisma/prisma.service';
@@ -19,6 +19,7 @@ describe('AuthController Integration', () => {
     app.enableCors({
       origin: 'http://localhost:3000',
     });
+    app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
     prisma = app.get<PrismaService>(PrismaService);
     await app.init();
   });
