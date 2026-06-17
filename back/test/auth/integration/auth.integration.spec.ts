@@ -59,6 +59,55 @@ describe('AuthController Integration', () => {
       .expect(400);
   });
 
+  it('/auth/register (POST) - JSON vacío u omitido debe fallar con 400', () => {
+    return request(app.getHttpServer())
+      .post('/auth/register')
+      .send({})
+      .expect(400);
+  });
+
+  it('/auth/register (POST) - Falta contraseña o confirmación debe fallar con 400', () => {
+    return request(app.getHttpServer())
+      .post('/auth/register')
+      .send({ email: 'test@example.com' })
+      .expect(400);
+  });
+
+  it('/auth/register (POST) - Formato de correo inválido debe fallar con 400', async () => {
+    const invalidEmails = [
+      'usuario_sin_arroba',
+      'usuario@.com',
+      '@dominio.com',
+    ];
+    for (const email of invalidEmails) {
+      await request(app.getHttpServer())
+        .post('/auth/register')
+        .send({
+          email,
+          password: 'Password123!',
+          confirmPassword: 'Password123!',
+        })
+        .expect(400);
+    }
+  });
+
+  it('/auth/register (POST) - Espacios en blanco en correo deben ser limpiados y registrar exitosamente', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/auth/register')
+      .send({
+        email: '  espacios@example.com  ',
+        password: 'Password123!',
+        confirmPassword: 'Password123!',
+      })
+      .expect(201);
+
+    const user = await prisma.user.findUnique({
+      where: { email: 'espacios@example.com' },
+    });
+    expect(user).toBeDefined();
+    expect(user?.email).toEqual('espacios@example.com');
+  });
+
   it('/auth/register (POST) - Registro exitoso', () => {
     return request(app.getHttpServer())
       .post('/auth/register')
@@ -137,6 +186,54 @@ describe('AuthController Integration', () => {
         const body = res.body as { message: string };
         expect(body.message).toEqual('Credenciales inválidas');
       });
+  });
+
+  it('/auth/login (POST) - Usuario existe, contraseña incorrecta', async () => {
+    const password = 'Password123!';
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await prisma.user.create({
+      data: {
+        email: 'wrongpass@example.com',
+        password: hashedPassword,
+      },
+    });
+
+    return request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: 'wrongpass@example.com',
+        password: 'WrongPassword123!',
+      })
+      .expect(401)
+      .expect((res: request.Response) => {
+        const body = res.body as { message: string };
+        expect(body.message).toEqual('Credenciales inválidas');
+      });
+  });
+
+  it('/auth/login (POST) - Campos faltantes u omitidos', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: 'test@example.com' })
+      .expect(400);
+
+    await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ password: 'Password123!' })
+      .expect(400);
+
+    await request(app.getHttpServer()).post('/auth/login').send({}).expect(400);
+  });
+
+  it('/auth/login (POST) - Formato de correo inválido', () => {
+    return request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: 'no-es-un-correo',
+        password: 'Password123!',
+      })
+      .expect(400);
   });
 
   it('/auth/login (POST) - Login exitoso y devuelve JWT', async () => {
