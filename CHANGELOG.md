@@ -1,3 +1,25 @@
+# [1.4.0](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/compare/v1.3.0...v1.4.0) (2026-06-16)
+
+
+### Bug Fixes
+
+* added missing watchlist module and fixed companies module ([82efcbb](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/commit/82efcbb5ff6548ffa9216992efa014499ba095a7))
+* fixed cypress tests and how tests are inicialized and added watchlist cypress test ([77ec92e](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/commit/77ec92eb77e8bbe2c2ff0ea51d6c6691aa0db77a))
+* forgot import ([7dc90f7](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/commit/7dc90f7e69fd262db0ca1d07b82b61cdfe190154))
+
+
+### Features
+
+* add last update timestamp for price data in Dashboard and improve price checks in PricesTable ([fc7e2c0](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/commit/fc7e2c0c751422cd05aee7c69291109773cadaf5))
+* add Locust load testing setup with auth and portfolio tasks ([0a6cd3f](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/commit/0a6cd3f3eb4c28c5afaaeba9513a2eead92eee30))
+* completed ticket [#45](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/issues/45), adding companies to watchlist ([cc33e2a](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/commit/cc33e2a114328dfcfe0a99c719dec05eb16fe75f))
+* completed ticket [#46](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/issues/46), added removal of companies from watchlist. Only backend with unit tests ([b6be977](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/commit/b6be977c788ffdfc0c3e47b43d5f95df9c9b67f0))
+* completed ticket [#47](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/issues/47), backend code with unit test ([9efdb7b](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/commit/9efdb7bff2d1dda7ba361c777ff91a60d7283791))
+* completed ticket [#49](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/issues/49), can now visualize watchlist, works correctly ([f2f8fc4](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/commit/f2f8fc4d09f42b3aa962b48d0b9113ba417509e3))
+* implement last update feature for price data in Dashboard with loading and error handling ([908699f](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/commit/908699fedcd96045a8143cbe46802218ce666a17))
+* **watchlist:** add comparing functionality in backend ([#48](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/issues/48)) ([29aa110](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/commit/29aa110f88b7b7e791ca37409502a788400a9771))
+* **watchlist:** implmented frontend with connection with the backend of watchlist ([6a60363](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/commit/6a60363c706d6e04a23625ef67cd910429d46050))
+
 # [1.3.0](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/compare/v1.2.0...v1.3.0) (2026-06-12)
 
 

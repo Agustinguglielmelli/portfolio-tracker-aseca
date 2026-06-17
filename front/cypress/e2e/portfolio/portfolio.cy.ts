@@ -1,3 +1,4 @@
+export {};
 const EMAIL = 'e2e_portfolio@test.com';
 const PASSWORD = 'Password123!';
 const API = 'http://localhost:3000';
@@ -16,6 +17,24 @@ const buyViaApi = (ticker: string, quantity: number) =>
 
 describe('Portfolio', () => {
     before(() => {
+        cy.request({
+            method: 'POST',
+            url: `${API}/auth/login`,
+            body: {
+                email: 'admin@admin.com',
+                password: 'admin123'
+            }
+        }).then((response) => {
+            const adminToken = response.body.token;
+
+            cy.request({
+                method: 'POST',
+                url: `${API}/prices/update`,
+                headers: { Authorization: `Bearer ${adminToken}` },
+                timeout: 120000
+            });
+        });
+
         cy.task('db:deleteUser', EMAIL);
         cy.request('POST', `${API}/auth/register`, {
             email: EMAIL,
@@ -23,7 +42,6 @@ describe('Portfolio', () => {
             confirmPassword: PASSWORD,
         });
 
-        // Asegurar que AAPL tiene precio en la DB de test
         cy.task('db:upsertStockPrice', { ticker: 'AAPL', price: 150 });
     });
 
