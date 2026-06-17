@@ -1,3 +1,15 @@
+# [1.5.0](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/compare/v1.4.0...v1.5.0) (2026-06-17)
+
+
+### Bug Fixes
+
+* add cache for search results to improve performance ([#65](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/issues/65)) ([7dcd84e](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/commit/7dcd84ee3f438f73d0ed01945d8d08a9aebeab52))
+
+
+### Features
+
+* add watchlist and compare functionality with API integration ([8c05379](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/commit/8c05379cd8b355cad153424d08aab9d41e1527fe))
+
 # [1.4.0](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/compare/v1.3.0...v1.4.0) (2026-06-17)
 
 
