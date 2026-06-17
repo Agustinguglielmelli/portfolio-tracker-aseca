@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/compare/v1.5.0...v1.6.0) (2026-06-17)
+
+
+### Features
+
+* mobile portfolio and companies (search and metrics) ([#70](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/issues/70)) ([7d3c038](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/commit/7d3c03886586b80a699e181b22a9eefa2ce78b5b))
+
 # [1.5.0](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/compare/v1.4.0...v1.5.0) (2026-06-17)
 
 
