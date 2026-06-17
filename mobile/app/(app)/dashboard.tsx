@@ -1,11 +1,12 @@
 import { useCallback, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
-import { useFocusEffect } from 'expo-router';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { useFocusEffect, useRouter } from 'expo-router';
 import LastUpdateBanner from '@/components/LastUpdateBanner';
 import { pricesApi, LastUpdateData } from '@/services/api';
 import { colors, spacing, radii } from '@/utils/theme';
 
 export default function DashboardScreen() {
+  const router = useRouter();
   const [lastUpdate, setLastUpdate] = useState<LastUpdateData | null>(null);
   const [loadingUpdate, setLoadingUpdate] = useState(true);
   const [updateError, setUpdateError] = useState(false);
@@ -40,10 +41,13 @@ export default function DashboardScreen() {
           <Text style={styles.cardPlaceholder}>Tus posiciones aparecerán aquí</Text>
         </View>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Watchlist</Text>
-          <Text style={styles.cardPlaceholder}>Tus tickers seguidos aparecerán aquí</Text>
-        </View>
+        <TouchableOpacity style={styles.card} onPress={() => router.push('/(app)/watchlist')} activeOpacity={0.75}>
+          <View style={styles.cardRow}>
+            <Text style={styles.cardTitle}>Watchlist</Text>
+            <Text style={styles.cardChevron}>›</Text>
+          </View>
+          <Text style={styles.cardPlaceholder}>Seguí y compará empresas desde mobile</Text>
+        </TouchableOpacity>
       </ScrollView>
     </View>
   );
@@ -104,5 +108,14 @@ const styles = StyleSheet.create({
   cardPlaceholder: {
     fontSize: 13,
     color: colors.textMuted,
+  },
+  cardRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  cardChevron: {
+    fontSize: 22,
+    color: colors.textSecondary,
   },
 });
