@@ -28,10 +28,6 @@ describe('AdminGuard', () => {
     jwtAuthGuard = module.get<JwtAuthGuard>(JwtAuthGuard);
   });
 
-  it('should be defined', () => {
-    expect(guard).toBeDefined();
-  });
-
   function createMockContext(user: any): ExecutionContext {
     return {
       switchToHttp: () => ({
@@ -42,18 +38,21 @@ describe('AdminGuard', () => {
     } as any;
   }
 
+  it('should be defined', () => {
+    expect(guard).toBeDefined();
+  });
+
   it('should throw if JwtAuthGuard throws', () => {
     (jwtAuthGuard.canActivate as jest.Mock).mockImplementation(() => {
       throw new UnauthorizedException();
     });
-
     const context = createMockContext(null);
+
     expect(() => guard.canActivate(context)).toThrow(UnauthorizedException);
   });
 
   it('should throw ForbiddenException if user is not ADMIN', () => {
     (jwtAuthGuard.canActivate as jest.Mock).mockReturnValue(true);
-
     const context = createMockContext({
       sub: 1,
       email: 'user@test.com',
@@ -62,9 +61,15 @@ describe('AdminGuard', () => {
     expect(() => guard.canActivate(context)).toThrow(ForbiddenException);
   });
 
+  it('should throw ForbiddenException if user object is missing', () => {
+    (jwtAuthGuard.canActivate as jest.Mock).mockReturnValue(true);
+    const context = createMockContext(undefined);
+
+    expect(() => guard.canActivate(context)).toThrow(ForbiddenException);
+  });
+
   it('should return true if user is ADMIN', () => {
     (jwtAuthGuard.canActivate as jest.Mock).mockReturnValue(true);
-
     const context = createMockContext({
       sub: 1,
       email: 'admin@test.com',
