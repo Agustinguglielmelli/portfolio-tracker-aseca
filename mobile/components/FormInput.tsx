@@ -3,15 +3,18 @@ import { colors, radii, spacing } from '@/utils/theme';
 
 type Props = TextInputProps & {
   label: string;
+  testID?: string;
 };
 
-export default function FormInput({ label, ...props }: Props) {
+export default function FormInput({ label, testID, ...props }: Props) {
   return (
     <View style={styles.field}>
       <Text style={styles.label}>{label}</Text>
       <TextInput
         style={styles.input}
         placeholderTextColor={colors.textMuted}
+        testID={testID}
+        accessibilityLabel={testID}
         {...props}
       />
     </View>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Text, TouchableOpacity } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import AuthLayout from '@/components/AuthLayout';
 import FormInput from '@/components/FormInput';
@@ -39,8 +40,10 @@ export default function LoginScreen() {
       footer={
         <>
           ¿No tenés cuenta?{' '}
-          <Link href="/(auth)/register" style={{ color: colors.textLink, fontWeight: '500' }}>
-            Registrate
+          <Link href="/(auth)/register" asChild>
+            <TouchableOpacity testID="register-link">
+              <Text style={{ color: colors.textLink, fontWeight: '500' }}>Registrate</Text>
+            </TouchableOpacity>
           </Link>
         </>
       }
@@ -61,6 +64,7 @@ export default function LoginScreen() {
         value={password}
         onChangeText={setPassword}
         secureTextEntry
+        textContentType="oneTimeCode"
         testID="password-input"
       />
       <PrimaryButton label="Ingresar" onPress={handleLogin} loading={loading} testID="login-submit" />

@@ -1,5 +1,5 @@
 import { apiLogin, apiRegister, apiBuy } from '../helpers/api';
-import { dbDeleteUser, dbDeleteUserTransactions, dbUpsertStockPrice } from '../helpers/db';
+import { dbDeleteUser, dbDeleteUserTransactions, dbDeleteUserWatchlist, dbUpsertStockPrice } from '../helpers/db';
 
 export async function setupTestUser(
   email: string,
@@ -15,6 +15,10 @@ export async function setupTestUser(
 
 export async function resetTransactions(email: string): Promise<void> {
   await dbDeleteUserTransactions(email);
+}
+
+export async function resetWatchlist(email: string): Promise<void> {
+  await dbDeleteUserWatchlist(email);
 }
 
 export async function buyViaApi(

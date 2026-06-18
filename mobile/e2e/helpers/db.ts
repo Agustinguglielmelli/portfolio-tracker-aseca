@@ -24,6 +24,16 @@ export async function dbDeleteUserTransactions(email: string): Promise<void> {
   );
 }
 
+export async function dbDeleteUserWatchlist(email: string): Promise<void> {
+  await withClient((c) =>
+    c.query(
+      `DELETE FROM "WatchlistItem"
+       WHERE "userId" = (SELECT id FROM "User" WHERE email = $1)`,
+      [email],
+    ),
+  );
+}
+
 export async function dbUpsertStockPrice(ticker: string, price: number): Promise<void> {
   await withClient((c) =>
     c.query(

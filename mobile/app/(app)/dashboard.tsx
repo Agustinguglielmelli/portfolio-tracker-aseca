@@ -182,6 +182,7 @@ function TradeModal({ visible, onClose, onSuccess }: TradeModalProps) {
               <TouchableOpacity
                 key={t}
                 testID={`trade-type-${t.toLowerCase()}`}
+                accessibilityLabel={`trade-type-${t.toLowerCase()}`}
                 style={[
                   styles.tradeToggleBtn,
                   type === t && (t === 'BUY' ? styles.tradeToggleBuy : styles.tradeToggleSell),
@@ -206,6 +207,7 @@ function TradeModal({ visible, onClose, onSuccess }: TradeModalProps) {
           <View style={styles.searchBox}>
             <TextInput
               testID="ticker-search"
+              accessibilityLabel="ticker-search"
               style={styles.searchInput}
               placeholder="Buscar empresa o ticker…"
               placeholderTextColor={colors.textMuted}
@@ -231,6 +233,7 @@ function TradeModal({ visible, onClose, onSuccess }: TradeModalProps) {
                 <TouchableOpacity
                   key={s.ticker ?? `suggestion-${i}`}
                   testID={`ticker-option-${s.ticker}`}
+                  accessibilityLabel={`ticker-option-${s.ticker}`}
                   style={styles.suggestionRow}
                   onPress={() => handleSelectCompany(s)}
                 >
@@ -249,6 +252,7 @@ function TradeModal({ visible, onClose, onSuccess }: TradeModalProps) {
           <Text style={styles.fieldLabel}>Cantidad</Text>
           <TextInput
             testID="quantity-input"
+            accessibilityLabel="quantity-input"
             style={styles.fieldInput}
             placeholder="0"
             placeholderTextColor={colors.textMuted}
@@ -270,6 +274,7 @@ function TradeModal({ visible, onClose, onSuccess }: TradeModalProps) {
 
           <TouchableOpacity
             testID="trade-submit"
+            accessibilityLabel="trade-submit"
             style={[
               styles.submitBtn,
               type === 'BUY' ? styles.submitBuy : styles.submitSell,
@@ -429,16 +434,16 @@ export default function DashboardScreen() {
           <Text style={styles.headerSubtitle}>Resumen de tus posiciones</Text>
         </View>
         <View style={styles.headerActions}>
-          <TouchableOpacity testID="trade-button" style={styles.operateBtn} onPress={() => { console.log('[E2E] trade-button pressed, opening modal'); setShowModal(true); }}>
+          <TouchableOpacity testID="trade-button" accessibilityLabel="trade-button" style={styles.operateBtn} onPress={() => setShowModal(true)}>
             <Text style={styles.operateBtnText}>+ Operar</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.watchlistBtn} onPress={() => router.push('/(app)/watchlist')}>
+          <TouchableOpacity testID="watchlist-tab" accessibilityLabel="watchlist-tab" style={styles.watchlistBtn} onPress={() => router.push('/(app)/watchlist')}>
             <Text style={styles.watchlistBtnText}>Watchlist</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.watchlistBtn} onPress={() => router.push('/(app)/companies')}>
+          <TouchableOpacity testID="company-tab" accessibilityLabel="company-tab" style={styles.watchlistBtn} onPress={() => router.push('/(app)/companies')}>
             <Text style={styles.watchlistBtnText}>Empresas</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+          <TouchableOpacity testID="logout-button" accessibilityLabel="logout-button" style={styles.logoutBtn} onPress={handleLogout}>
             <Text style={styles.logoutBtnText}>Salir</Text>
           </TouchableOpacity>
         </View>

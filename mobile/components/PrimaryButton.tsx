@@ -15,6 +15,7 @@ export default function PrimaryButton({ label, onPress, loading = false, testID 
       onPress={onPress}
       disabled={loading}
       testID={testID}
+      accessibilityLabel={testID}
     >
       {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.text}>{label}</Text>}
     </TouchableOpacity>

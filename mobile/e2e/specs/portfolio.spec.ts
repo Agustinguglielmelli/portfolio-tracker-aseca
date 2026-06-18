@@ -21,11 +21,11 @@ describe('Portfolio', () => {
     await portfolio.open(EMAIL, PASSWORD);
   });
 
-  it('muestra el estado vacío cuando no hay posiciones', async () => {
+  it('shows empty state when there are no positions', async () => {
     await portfolio.waitForEmptyState();
   });
 
-  it('registra una compra desde la UI y muestra la posición', async () => {
+  it('registers a buy from UI and shows position', async () => {
     await portfolio.buy('AAPL', 10);
 
     await portfolio.waitForPosition('AAPL');
@@ -33,7 +33,7 @@ describe('Portfolio', () => {
     expect(shares).toContain('10');
   });
 
-  it('registra una venta y actualiza la posición', async () => {
+  it('registers a sell and updates position', async () => {
     await buyViaApi(EMAIL, PASSWORD, 'AAPL', 10);
     await portfolio.open(EMAIL, PASSWORD);
 
@@ -44,7 +44,7 @@ describe('Portfolio', () => {
     expect(shares).toContain('5');
   });
 
-  it('vender todo cierra la posición', async () => {
+  it('selling everything closes the position', async () => {
     await buyViaApi(EMAIL, PASSWORD, 'AAPL', 10);
     await portfolio.open(EMAIL, PASSWORD);
 
@@ -54,7 +54,7 @@ describe('Portfolio', () => {
     await portfolio.waitForEmptyState();
   });
 
-  it('muestra error al intentar vender más de lo disponible', async () => {
+  it('shows error when trying to sell more than available', async () => {
     await buyViaApi(EMAIL, PASSWORD, 'AAPL', 5);
     await portfolio.open(EMAIL, PASSWORD);
 
@@ -65,7 +65,7 @@ describe('Portfolio', () => {
     expect(error).toBeTruthy();
   });
 
-  it('muestra el historial de transacciones', async () => {
+  it('shows transaction history', async () => {
     await buyViaApi(EMAIL, PASSWORD, 'AAPL', 10);
     await portfolio.open(EMAIL, PASSWORD);
 

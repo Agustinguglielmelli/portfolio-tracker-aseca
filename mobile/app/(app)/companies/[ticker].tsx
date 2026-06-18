@@ -332,7 +332,7 @@ export default function CompanyDetailScreen() {
     return (
       <View style={[styles.container, styles.centered]}>
         <View style={styles.errorBox}>
-          <Text style={styles.errorText}>{error}</Text>
+          <Text testID="error-message" style={styles.errorText}>{error}</Text>
         </View>
         <TouchableOpacity style={styles.backFromError} onPress={() => router.back()}>
           <Text style={styles.backFromErrorText}>← Volver</Text>
@@ -349,7 +349,7 @@ export default function CompanyDetailScreen() {
           <Text style={styles.backText}>←</Text>
         </TouchableOpacity>
         <View style={styles.headerInfo}>
-          <Text style={styles.headerTicker}>{ticker}</Text>
+          <Text testID="company-title" style={styles.headerTicker}>{ticker}</Text>
           <Text style={styles.headerSubtitle}>Datos financieros</Text>
         </View>
       </View>
@@ -357,7 +357,7 @@ export default function CompanyDetailScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         {/* Métricas actuales */}
         <Text style={styles.sectionTitle}>MÉTRICAS ACTUALES</Text>
-        <View style={styles.metricsGrid}>
+        <View testID="metrics-section" style={styles.metricsGrid}>
           <MetricCard title="Revenue" value={formatCurrency(metrics?.revenue)} />
           <MetricCard title="Net Income" value={formatCurrency(metrics?.netIncome)} />
           <MetricCard title="EPS" value={
@@ -380,7 +380,7 @@ export default function CompanyDetailScreen() {
 
         {/* Filings */}
         <Text style={[styles.sectionTitle, { marginTop: spacing.xl }]}>FILINGS RECIENTES (10-K / 10-Q)</Text>
-        <View style={styles.filingsContainer}>
+        <View testID="filings-section" style={styles.filingsContainer}>
           {filings.length > 0 ? (
             filings.map((filing, index) => (
               <View
