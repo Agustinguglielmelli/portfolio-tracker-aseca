@@ -178,6 +178,7 @@ function TradeModal({ visible, onClose, onSuccess }: TradeModalProps) {
             {(['BUY', 'SELL'] as TradeType[]).map((t) => (
               <TouchableOpacity
                 key={t}
+                testID={`trade-type-${t.toLowerCase()}`}
                 style={[
                   styles.tradeToggleBtn,
                   type === t && (t === 'BUY' ? styles.tradeToggleBuy : styles.tradeToggleSell),
@@ -193,7 +194,7 @@ function TradeModal({ visible, onClose, onSuccess }: TradeModalProps) {
 
           {!!error && (
             <View style={styles.errorBox}>
-              <Text style={styles.errorBoxText}>{error}</Text>
+              <Text testID="trade-error" style={styles.errorBoxText}>{error}</Text>
             </View>
           )}
 
@@ -201,6 +202,7 @@ function TradeModal({ visible, onClose, onSuccess }: TradeModalProps) {
           <Text style={styles.fieldLabel}>Empresa</Text>
           <View style={styles.searchBox}>
             <TextInput
+              testID="ticker-search"
               style={styles.searchInput}
               placeholder="Buscar empresa o ticker…"
               placeholderTextColor={colors.textMuted}
@@ -225,6 +227,7 @@ function TradeModal({ visible, onClose, onSuccess }: TradeModalProps) {
               {suggestions.map((s, i) => (
                 <TouchableOpacity
                   key={s.ticker ?? `suggestion-${i}`}
+                  testID={`ticker-option-${s.ticker}`}
                   style={styles.suggestionRow}
                   onPress={() => handleSelectCompany(s)}
                 >
@@ -242,6 +245,7 @@ function TradeModal({ visible, onClose, onSuccess }: TradeModalProps) {
           {/* Quantity */}
           <Text style={styles.fieldLabel}>Cantidad</Text>
           <TextInput
+            testID="quantity-input"
             style={styles.fieldInput}
             placeholder="0"
             placeholderTextColor={colors.textMuted}
@@ -262,6 +266,7 @@ function TradeModal({ visible, onClose, onSuccess }: TradeModalProps) {
           />
 
           <TouchableOpacity
+            testID="trade-submit"
             style={[
               styles.submitBtn,
               type === 'BUY' ? styles.submitBuy : styles.submitSell,
@@ -303,7 +308,7 @@ function TransactionHistory({ refreshKey }: { refreshKey: number }) {
 
   return (
     <View style={styles.historyContainer}>
-      <TouchableOpacity style={styles.historyToggle} onPress={() => setOpen((v) => !v)}>
+      <TouchableOpacity testID="history-toggle" style={styles.historyToggle} onPress={() => setOpen((v) => !v)}>
         <Text style={styles.historyToggleText}>Historial de transacciones</Text>
         <Text style={styles.historyChevron}>{open ? '▲' : '▼'}</Text>
       </TouchableOpacity>
@@ -317,14 +322,14 @@ function TransactionHistory({ refreshKey }: { refreshKey: number }) {
             <Text style={styles.historyEmpty}>No hay transacciones registradas.</Text>
           )}
           {!loading && transactions.map((tx) => (
-            <View key={tx.id} style={styles.txRow}>
+            <View key={tx.id} testID="transaction-row" style={styles.txRow}>
               <View style={[styles.txBadge, tx.type === 'BUY' ? styles.txBadgeBuy : styles.txBadgeSell]}>
                 <Text style={[styles.txBadgeText, tx.type === 'BUY' ? styles.txBadgeTextBuy : styles.txBadgeTextSell]}>
                   {tx.type === 'BUY' ? 'Compra' : 'Venta'}
                 </Text>
               </View>
               <View style={styles.txInfo}>
-                <Text style={styles.txTicker}>{tx.ticker}</Text>
+                <Text testID="transaction-ticker" style={styles.txTicker}>{tx.ticker}</Text>
                 <Text style={styles.txDate}>{formatDate(tx.date)}</Text>
               </View>
               <View style={styles.txRight}>
@@ -344,14 +349,14 @@ function TransactionHistory({ refreshKey }: { refreshKey: number }) {
 function PositionRow({ pos }: { pos: Position }) {
   const pnlPositive = pos.pnl !== null && pos.pnl >= 0;
   return (
-    <View style={styles.posRow}>
+    <View testID={`position-row-${pos.ticker}`} style={styles.posRow}>
       <View style={styles.posLeft}>
         <View style={styles.tickerBadge}>
           <Text style={styles.tickerBadgeText} numberOfLines={1}>{pos.ticker}</Text>
         </View>
         <View>
           <Text style={styles.posTicker}>{pos.ticker}</Text>
-          <Text style={styles.posDetail}>
+          <Text testID={`position-shares-${pos.ticker}`} style={styles.posDetail}>
             {pos.totalShares} acc · costo {formatCurrency(pos.avgCost)}
           </Text>
         </View>
@@ -421,7 +426,7 @@ export default function DashboardScreen() {
           <Text style={styles.headerSubtitle}>Resumen de tus posiciones</Text>
         </View>
         <View style={styles.headerActions}>
-          <TouchableOpacity style={styles.operateBtn} onPress={() => setShowModal(true)}>
+          <TouchableOpacity testID="trade-button" style={styles.operateBtn} onPress={() => { console.log('[E2E] trade-button pressed, opening modal'); setShowModal(true); }}>
             <Text style={styles.operateBtnText}>+ Operar</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.watchlistBtn} onPress={() => router.push('/(app)/watchlist')}>
@@ -481,7 +486,7 @@ export default function DashboardScreen() {
 
       {/* Empty */}
       {!loading && !error && positions.length === 0 && (
-        <View style={{ flex: 1 }}>
+        <View testID="portfolio-empty" style={{ flex: 1 }}>
           <View style={styles.center}>
             <Text style={styles.emptyIcon}>📊</Text>
             <Text style={styles.emptyTitle}>No tenés posiciones abiertas</Text>
@@ -495,14 +500,10 @@ export default function DashboardScreen() {
 
       {/* Positions + history */}
       {!loading && !error && positions.length > 0 && (
-        <FlatList
-          data={positions}
-          keyExtractor={(item) => item.ticker}
-          renderItem={({ item }) => <PositionRow pos={item} />}
-          contentContainerStyle={styles.list}
-          showsVerticalScrollIndicator={false}
-          ListFooterComponent={<TransactionHistory refreshKey={refreshKey} />}
-        />
+        <ScrollView contentContainerStyle={styles.list} showsVerticalScrollIndicator={false}>
+          {positions.map((item) => <PositionRow key={item.ticker} pos={item} />)}
+          <TransactionHistory refreshKey={refreshKey} />
+        </ScrollView>
       )}
 
       <TradeModal
@@ -877,7 +878,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 10,
     alignItems: 'center',
-    backgroundColor: 'transparent',
+    backgroundColor: 'rgba(30,41,59,0.8)',
   },
   tradeToggleBuy: { backgroundColor: '#059669' },
   tradeToggleSell: { backgroundColor: '#dc2626' },
