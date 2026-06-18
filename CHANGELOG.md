@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/compare/v1.7.0...v1.8.0) (2026-06-18)
+
+
+### Features
+
+* add load and stress testing for authentication endpoints ([5eab66d](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/commit/5eab66dca0b1b2d09d8ec59eca1307f2e8656056))
+
 # [1.7.0](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/compare/v1.6.0...v1.7.0) (2026-06-18)
 
 
