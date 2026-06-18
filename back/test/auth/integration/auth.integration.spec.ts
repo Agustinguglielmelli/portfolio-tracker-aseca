@@ -30,7 +30,7 @@ describe('AuthController Integration', () => {
     await prisma.user.deleteMany();
   });
 
-  it('/auth/register (POST) - Contraseñas no coinciden', () => {
+  it('/auth/register (POST) - Passwords do not match', () => {
     return request(app.getHttpServer())
       .post('/auth/register')
       .send({
@@ -47,7 +47,7 @@ describe('AuthController Integration', () => {
       });
   });
 
-  it('/auth/register (POST) - Validar longitud máxima de email y contraseña', () => {
+  it('/auth/register (POST) - Validate maximum length of email and password', () => {
     const longString = 'a'.repeat(257);
     return request(app.getHttpServer())
       .post('/auth/register')
@@ -59,21 +59,21 @@ describe('AuthController Integration', () => {
       .expect(400);
   });
 
-  it('/auth/register (POST) - JSON vacío u omitido debe fallar con 400', () => {
+  it('/auth/register (POST) - Empty or omitted JSON should fail with 400', () => {
     return request(app.getHttpServer())
       .post('/auth/register')
       .send({})
       .expect(400);
   });
 
-  it('/auth/register (POST) - Falta contraseña o confirmación debe fallar con 400', () => {
+  it('/auth/register (POST) - Missing password or confirmation should fail with 400', () => {
     return request(app.getHttpServer())
       .post('/auth/register')
       .send({ email: 'test@example.com' })
       .expect(400);
   });
 
-  it('/auth/register (POST) - Formato de correo inválido debe fallar con 400', async () => {
+  it('/auth/register (POST) - Invalid email format should fail with 400', async () => {
     const invalidEmails = [
       'usuario_sin_arroba',
       'usuario@.com',
@@ -91,7 +91,7 @@ describe('AuthController Integration', () => {
     }
   });
 
-  it('/auth/register (POST) - Espacios en blanco en correo deben ser limpiados y registrar exitosamente', async () => {
+  it('/auth/register (POST) - Whitespace in email should be trimmed and register successfully', async () => {
     const res = await request(app.getHttpServer())
       .post('/auth/register')
       .send({
@@ -108,7 +108,7 @@ describe('AuthController Integration', () => {
     expect(user?.email).toEqual('espacios@example.com');
   });
 
-  it('/auth/register (POST) - Registro exitoso', () => {
+  it('/auth/register (POST) - Successful registration', () => {
     return request(app.getHttpServer())
       .post('/auth/register')
       .send({
@@ -123,7 +123,7 @@ describe('AuthController Integration', () => {
       });
   });
 
-  it('/auth/register (POST) - Mail ya registrado', async () => {
+  it('/auth/register (POST) - Email already registered', async () => {
     const userData = {
       email: 'unico@example.com',
       password: 'Password123!',
@@ -142,7 +142,7 @@ describe('AuthController Integration', () => {
       });
   });
 
-  it('/auth/register (POST) - Encripta la contraseña', async () => {
+  it('/auth/register (POST) - Hashes the password', async () => {
     const email = 'encriptado@example.com';
     const password = 'Password123!';
 
@@ -163,7 +163,7 @@ describe('AuthController Integration', () => {
     expect(isMatch).toBe(true);
   });
 
-  it('/auth/login (POST) - Validar longitud máxima de email y contraseña', () => {
+  it('/auth/login (POST) - Validate maximum length of email and password', () => {
     const longString = 'a'.repeat(257);
     return request(app.getHttpServer())
       .post('/auth/login')
@@ -174,7 +174,7 @@ describe('AuthController Integration', () => {
       .expect(400);
   });
 
-  it('/auth/login (POST) - Credenciales inválidas', () => {
+  it('/auth/login (POST) - Invalid credentials', () => {
     return request(app.getHttpServer())
       .post('/auth/login')
       .send({
@@ -188,7 +188,7 @@ describe('AuthController Integration', () => {
       });
   });
 
-  it('/auth/login (POST) - Usuario existe, contraseña incorrecta', async () => {
+  it('/auth/login (POST) - User exists, incorrect password', async () => {
     const password = 'Password123!';
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -212,7 +212,7 @@ describe('AuthController Integration', () => {
       });
   });
 
-  it('/auth/login (POST) - Campos faltantes u omitidos', async () => {
+  it('/auth/login (POST) - Missing or omitted fields', async () => {
     await request(app.getHttpServer())
       .post('/auth/login')
       .send({ email: 'test@example.com' })
@@ -226,7 +226,7 @@ describe('AuthController Integration', () => {
     await request(app.getHttpServer()).post('/auth/login').send({}).expect(400);
   });
 
-  it('/auth/login (POST) - Formato de correo inválido', () => {
+  it('/auth/login (POST) - Invalid email format', () => {
     return request(app.getHttpServer())
       .post('/auth/login')
       .send({
@@ -236,7 +236,7 @@ describe('AuthController Integration', () => {
       .expect(400);
   });
 
-  it('/auth/login (POST) - Login exitoso y devuelve JWT', async () => {
+  it('/auth/login (POST) - Successful login returns JWT', async () => {
     const password = 'Password123!';
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -262,7 +262,7 @@ describe('AuthController Integration', () => {
       });
   });
 
-  it('/auth/register (POST) - debe registrar un usuario y devolver un access_token para autenticación automática', async () => {
+  it('/auth/register (POST) - should register a user and return an access_token for automatic login', async () => {
     const registerDto = {
       email: 'autologin@example.com',
       password: 'Password123',

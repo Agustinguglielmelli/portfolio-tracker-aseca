@@ -21,7 +21,7 @@ describe('Companies Integration', () => {
     await app.init();
   });
 
-  it('/companies/search (GET) - Debe devolver resultados reales de la SEC', async () => {
+  it('/companies/search (GET) - Should return real results from the SEC', async () => {
     const response = await request(app.getHttpServer())
       .get('/companies/search?q=microsoft')
       .expect(200);
@@ -36,7 +36,7 @@ describe('Companies Integration', () => {
     expect(msft).toBeDefined();
   });
 
-  it('/companies/:ticker/metrics (GET) - Debe devolver las métricas reales de AAPL', async () => {
+  it('/companies/:ticker/metrics (GET) - Should return real metrics for AAPL', async () => {
     const response = await request(app.getHttpServer())
       .get('/companies/AAPL/metrics')
       .expect(200);
@@ -50,7 +50,7 @@ describe('Companies Integration', () => {
     expect(typeof response.body.eps).toBe('number');
   });
 
-  it('/companies/:ticker/metrics (GET) - Ticker inexistente debe dar 404 Not Found', async () => {
+  it('/companies/:ticker/metrics (GET) - Non-existent ticker should return 404 Not Found', async () => {
     const response = await request(app.getHttpServer())
       .get('/companies/FAKEINVALID/metrics')
       .expect(404);
@@ -58,7 +58,7 @@ describe('Companies Integration', () => {
     expect(response.body.message).toContain('FAKEINVALID no existe');
   });
 
-  it('/companies/:ticker/filings (GET) - Debe devolver reportes recientes (10-K y 10-Q)', async () => {
+  it('/companies/:ticker/filings (GET) - Should return recent reports (10-K and 10-Q)', async () => {
     const response = await request(app.getHttpServer())
       .get('/companies/MSFT/filings')
       .expect(200);
@@ -76,7 +76,7 @@ describe('Companies Integration', () => {
     expect(invalidTypes.length).toBe(0);
   });
 
-  it('/companies/:ticker/historical-metrics (GET) - Debe parsear y devolver historial de GOOG', async () => {
+  it('/companies/:ticker/historical-metrics (GET) - Should return historical metrics for AAPL', async () => {
     const response = await request(app.getHttpServer())
       .get('/companies/GOOG/historical-metrics')
       .expect(200);
