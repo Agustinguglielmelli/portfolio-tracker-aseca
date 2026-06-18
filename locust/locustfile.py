@@ -1,6 +1,6 @@
 from locust import HttpUser, between, events
 
-from tests.auth import LOCUST_PASSWORD, login, register, unique_email
+from tests.setup_utils import LOCUST_PASSWORD, login, register, unique_email
 from tests.companies import CompanyTasksMixin
 from tests.portfolio import PortfolioTasksMixin
 from tests.prices import PriceTasksMixin
