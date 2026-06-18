@@ -39,6 +39,9 @@ export class PortfolioScreen {
 
     await this.app.typeInModal('quantity-input', String(quantity));
 
+    await this.app.tap('modal-title');
+    await this.app.pause(1000);
+
     const submit = await this.app.elExists('trade-submit', 5_000);
     await submit.click();
   }

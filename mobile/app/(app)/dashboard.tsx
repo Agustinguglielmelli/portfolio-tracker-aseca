@@ -12,6 +12,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { portfolioApi, companiesApi } from '@/services/api';
@@ -132,6 +134,7 @@ function TradeModal({ visible, onClose, onSuccess }: TradeModalProps) {
   };
 
   const handleSubmit = async () => {
+    Keyboard.dismiss();
     setError('');
     const qty = parseFloat(quantity);
     if (!ticker) return setError('Seleccioná una empresa.');
@@ -167,7 +170,7 @@ function TradeModal({ visible, onClose, onSuccess }: TradeModalProps) {
           <View style={styles.modalHandle} />
 
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Registrar operación</Text>
+            <Text testID="modal-title" style={styles.modalTitle}>Registrar operación</Text>
             <TouchableOpacity onPress={handleClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
               <Text style={styles.modalClose}>✕</Text>
             </TouchableOpacity>

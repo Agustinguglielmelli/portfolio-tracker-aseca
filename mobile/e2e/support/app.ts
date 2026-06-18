@@ -1,13 +1,13 @@
 const BUNDLE = 'com.anonymous.portfolio-tracker';
 
 export class AppiumBrowser {
-  async el(testId: string, timeout = 10_000): Promise<WebdriverIO.Element> {
+  async el(testId: string, timeout = 10_000): Promise<any> {
     const elem = await $(`~${testId}`);
     await elem.waitForDisplayed({ timeout });
     return elem;
   }
 
-  async elExists(testId: string, timeout = 10_000): Promise<WebdriverIO.Element> {
+  async elExists(testId: string, timeout = 10_000): Promise<any> {
     const elem = await $(`~${testId}`);
     await elem.waitForExist({ timeout });
     return elem;

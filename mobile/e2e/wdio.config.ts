@@ -23,7 +23,7 @@ function findAppPath(): string {
   );
 }
 
-export const config: Options.Testrunner = {
+export const config: any = {
   runner: 'local',
   port: 4723,
 

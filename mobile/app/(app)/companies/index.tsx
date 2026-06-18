@@ -39,7 +39,7 @@ export default function CompanySearchScreen() {
     setError('');
     try {
       const data = await companiesApi.search(q.trim());
-      setResults(data.filter((c) => !!c.ticker));
+      setResults(data.filter((c) => !!c.ticker) as any);
       setHasSearched(true);
     } catch {
       setError('No se pudo realizar la búsqueda.');
