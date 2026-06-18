@@ -11,7 +11,6 @@ import { Request } from 'express';
 
 @Injectable()
 export class AdminOrApiKeyGuard implements CanActivate {
-  // US 3.1
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
@@ -27,7 +26,7 @@ export class AdminOrApiKeyGuard implements CanActivate {
     }
     const expectedApiKey = this.configService.get<string>('ADMIN_API_KEY');
     if (expectedApiKey && token === expectedApiKey) {
-      return true; // US 3.2 — CI pipeline authenticated via API key
+      return true;
     }
     try {
       const payload = this.jwtService.verify<{

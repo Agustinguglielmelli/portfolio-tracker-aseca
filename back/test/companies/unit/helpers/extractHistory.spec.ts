@@ -7,7 +7,7 @@ describe('extractHistory', () => {
         USD: [
           { val: 100, end: '2023-01-01', form: '10-K' },
           { val: 200, end: '2024-01-01', form: '10-Q' },
-          { val: 300, end: '2024-01-01', form: '10-Q' }, // duplicate date
+          { val: 300, end: '2024-01-01', form: '10-Q' },
         ],
       },
     },
@@ -29,7 +29,7 @@ describe('extractHistory', () => {
         units: {
           USD: [
             { val: 100, end: '2024-01-01', form: '10-K' },
-            { val: 200, end: '2024-01-01', form: '10-Q' }, // duplicate date
+            { val: 200, end: '2024-01-01', form: '10-Q' },
           ],
         },
       },

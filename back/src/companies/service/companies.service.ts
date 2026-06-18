@@ -10,6 +10,7 @@ import {
   sortFilingsByDateDesc,
   uniqueByCik,
 } from '../utils/helpers';
+import { CompanySearchResult, Filing } from '../utils/types';
 
 @Injectable()
 export class CompaniesService {
@@ -18,12 +19,12 @@ export class CompaniesService {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
-  async searchCompanies(query: string) {
+  async searchCompanies(query: string): Promise<CompanySearchResult[]> {
     const cacheKey = `search_${query.trim().toLowerCase()}`;
     const cachedResult = await this.cacheManager.get(cacheKey);
     if (cachedResult) {
       console.log('Cache hit!');
-      return cachedResult;
+      return cachedResult as CompanySearchResult[];
     }
     console.log('Cache miss');
 
@@ -38,10 +39,16 @@ export class CompaniesService {
     return result;
   }
 
-  async getMetrics(ticker: string) {
+  async getMetrics(ticker: string): Promise<{
+    revenue: number | null;
+    netIncome: number | null;
+    eps: number | null;
+    totalAssets: number | null;
+    totalLiabilities: number | null;
+  }> {
     const cacheKey = `metrics_${ticker.toUpperCase()}`;
     const cachedResult = await this.cacheManager.get(cacheKey);
-    if (cachedResult) return cachedResult;
+    if (cachedResult) return cachedResult as any;
     const cik = this.companiesRepository.getCikByTicker(ticker);
     const factsData = await this.companiesRepository.getCompanyFactsRaw(cik);
 
@@ -65,10 +72,10 @@ export class CompaniesService {
     return result;
   }
 
-  async getFilings(ticker: string) {
+  async getFilings(ticker: string): Promise<Filing[]> {
     const cacheKey = `filings_${ticker.toUpperCase()}`;
     const cachedResult = await this.cacheManager.get(cacheKey);
-    if (cachedResult) return cachedResult;
+    if (cachedResult) return cachedResult as Filing[];
     const cik = this.companiesRepository.getCikByTicker(ticker);
     const data = await this.companiesRepository.getCompanySubmissionsRaw(cik);
 
@@ -82,10 +89,14 @@ export class CompaniesService {
     return result;
   }
 
-  async getHistoricalMetrics(ticker: string) {
+  async getHistoricalMetrics(ticker: string): Promise<{
+    revenue: { date: string; value: number }[];
+    netIncome: { date: string; value: number }[];
+    eps: { date: string; value: number }[];
+  }> {
     const cacheKey = `history_${ticker.toUpperCase()}`;
     const cachedResult = await this.cacheManager.get(cacheKey);
-    if (cachedResult) return cachedResult;
+    if (cachedResult) return cachedResult as any;
     const cik = this.companiesRepository.getCikByTicker(ticker);
     const factsData = await this.companiesRepository.getCompanyFactsRaw(cik);
 
@@ -95,10 +106,13 @@ export class CompaniesService {
       throw new NotFoundException('No se encontraron métricas históricas');
     }
 
+    const revHistory = extractHistory(gaap, 'Revenues');
+
     const result = {
       revenue:
-        extractHistory(gaap, 'Revenues') ||
-        extractHistory(gaap, 'SalesRevenueNet'),
+        revHistory.length > 0
+          ? revHistory
+          : extractHistory(gaap, 'SalesRevenueNet'),
 
       netIncome: extractHistory(gaap, 'NetIncomeLoss'),
 

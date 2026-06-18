@@ -36,13 +36,18 @@ export const CompanySearch = () => {
 
                 <form onSubmit={handleSearch} className="flex gap-2 mb-6">
                     <input
+                        data-cy="ticker-search"
                         type="text"
                         placeholder="Nombre o ticker (ej. AAPL, Apple)"
                         className="flex-1 px-4 py-2.5 bg-slate-700/50 border border-slate-600/50 text-slate-100 placeholder-slate-500 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/50 transition"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                     />
-                    <button type="submit" className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl text-sm transition shadow-lg shadow-blue-600/30">
+                    <button
+                        data-cy="search-submit"
+                        type="submit"
+                        className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl text-sm transition shadow-lg shadow-blue-600/30"
+                    >
                         Buscar
                     </button>
                 </form>
@@ -55,6 +60,7 @@ export const CompanySearch = () => {
                     {results.map((company) => (
                         <div
                             key={company.cik}
+                            data-cy={`ticker-option-${company.ticker}`}
                             onClick={() => {
                                 console.log(company);
                                 navigate(`/companies/${company.ticker}`);

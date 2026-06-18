@@ -17,7 +17,8 @@ const config: Config = {
       displayName: 'unit:test',
       moduleFileExtensions: ['js', 'json', 'ts'],
       rootDir: 'test',
-      testRegex: '^(?!.*\\/integration\\/)(?!.*\\.e2e-spec\\.ts$).*\\.spec\\.ts$',
+      testRegex:
+        '^(?!.*\\/integration\\/)(?!.*\\.e2e-spec\\.ts$).*\\.spec\\.ts$',
       transform: {
         '^.+\\.(t|j)s$': 'ts-jest',
       },

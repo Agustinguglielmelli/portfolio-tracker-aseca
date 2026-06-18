@@ -12,14 +12,12 @@ export interface BatchResult {
   errors: number;
 }
 
-// US 3.3 — Per-ticker detail entry in the BatchLog
 export interface TickerDetail {
   ticker: string;
   price?: number;
   error?: string;
 }
 
-// US 3.3 — Shape of the response from GET /prices/last-update
 export interface LastUpdateResponse {
   lastUpdate: string | null;
   message: string;
@@ -29,7 +27,6 @@ export interface LastUpdateResponse {
   details: TickerDetail[];
 }
 
-// Shape of the JSON response from the python-worker FastAPI service
 interface PythonWorkerResponse {
   tickersProcessed: number;
   success: number;
@@ -42,7 +39,6 @@ export class PricesService {
   private readonly logger = new Logger(PricesService.name);
   private readonly pythonWorkerUrl: string;
 
-  // US 3.3 — Inject PrismaService to persist BatchLog and query last-update
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
@@ -52,7 +48,6 @@ export class PricesService {
       'http://python-worker:8000';
   }
 
-  // US 3.1 — Calls the python-worker FastAPI service and persists the result to BatchLog
   async runUpdateBatch(): Promise<BatchResult> {
     const endpoint = `${this.pythonWorkerUrl}/api/update-prices`;
     this.logger.log(`Calling python-worker: POST ${endpoint}`);
@@ -94,7 +89,6 @@ export class PricesService {
       errors: workerResponse.errors,
     };
 
-    // US 3.3 — Persist the batch result in BatchLog for last-update queries
     try {
       await this.prisma.batchLog.create({
         data: {
@@ -112,14 +106,12 @@ export class PricesService {
     return result;
   }
 
-  // US 3.3 — Returns the timestamp and details of the last successful batch run
   async getLastUpdate(): Promise<LastUpdateResponse> {
     const lastLog = await this.prisma.batchLog.findFirst({
       orderBy: { ranAt: 'desc' },
     });
 
     if (!lastLog) {
-      // US 3.3 — Empty state: no batch has ever been executed
       return {
         lastUpdate: null,
         message: 'No hay precios registrados. El batch nunca fue ejecutado.',
@@ -131,12 +123,12 @@ export class PricesService {
     }
 
     return {
-      lastUpdate: lastLog.ranAt.toISOString(), // US 3.3
+      lastUpdate: lastLog.ranAt.toISOString(),
       message: 'Última actualización de precios recuperada exitosamente.',
       tickersProcessed: lastLog.tickersProcessed,
       success: lastLog.success,
       errors: lastLog.errors,
-      details: (lastLog.details ?? []) as unknown as TickerDetail[], // US 3.3
+      details: (lastLog.details ?? []) as unknown as TickerDetail[],
     };
   }
 }

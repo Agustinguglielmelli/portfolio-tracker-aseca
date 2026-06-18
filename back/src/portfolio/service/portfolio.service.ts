@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -16,6 +15,9 @@ export class PortfolioService {
   constructor(private readonly portfolioRepository: PortfolioRepository) {}
 
   async buy(userId: number, dto: BuyDto): Promise<PortfolioTransaction> {
+    if (!dto.ticker) {
+      throw new BadRequestException('Falta enviar el ticker');
+    }
     const price = await this.getStockPriceOrThrow(dto.ticker);
 
     if (dto.quantity <= 0) {
@@ -33,6 +35,9 @@ export class PortfolioService {
   }
 
   async sell(userId: number, dto: SellDto): Promise<PortfolioTransaction> {
+    if (!dto.ticker) {
+      throw new BadRequestException('Falta enviar el ticker');
+    }
     const price = await this.getStockPriceOrThrow(dto.ticker);
 
     const transactions =
@@ -80,46 +85,6 @@ export class PortfolioService {
 
     return positions.filter((p): p is PortfolioPosition => p !== null);
   }
-
-  private async findTransactionOrThrow(
-    transactionId: number,
-  ): Promise<PortfolioTransaction> {
-    const tx =
-      await this.portfolioRepository.findTransactionById(transactionId);
-    if (!tx) throw new NotFoundException('Transacción no encontrada');
-    return tx;
-  }
-
-  private validateOwnership(tx: PortfolioTransaction, userId: number): void {
-    if (tx.userId !== userId)
-      throw new ForbiddenException(
-        'No tenés permiso para eliminar esta transacción',
-      );
-  }
-
-  private async validateFifoAfterBuyRemoval(
-    userId: number,
-    ticker: string,
-    transactionId: number,
-  ): Promise<void> {
-    const allTxs =
-      await this.portfolioRepository.getTransactionsByUserAndTicker(
-        userId,
-        ticker,
-      );
-    const withoutThis = allTxs.filter((t) => t.id !== transactionId);
-    const remainingShares = getTotalShares(applyFifo(withoutThis));
-    const totalSold = withoutThis
-      .filter((t) => t.type === TransactionType.SELL)
-      .reduce((sum, t) => sum + t.quantity, 0);
-
-    if (totalSold > remainingShares) {
-      throw new BadRequestException(
-        'No podés eliminar esta compra porque dejaría ventas sin respaldo',
-      );
-    }
-  }
-
   async getAllTransactions(userId: number): Promise<PortfolioTransaction[]> {
     return this.portfolioRepository.getAllTransactionsByUser(userId);
   }

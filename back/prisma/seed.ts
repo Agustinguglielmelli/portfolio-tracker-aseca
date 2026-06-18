@@ -37,19 +37,19 @@ async function main() {
   // Seed stock prices so buy/sell operations work out of the box.
   // The python-worker batch will overwrite these with live prices on its next run.
   const stockPrices = [
-    { ticker: 'AAPL',  price: 189.30 },
-    { ticker: 'MSFT',  price: 415.50 },
-    { ticker: 'GOOGL', price: 175.80 },
-    { ticker: 'TSLA',  price: 245.60 },
-    { ticker: 'AMZN',  price: 198.40 },
-    { ticker: 'NVDA',  price: 875.20 },
-    { ticker: 'META',  price: 530.10 },
+    { ticker: 'AAPL', price: 189.3 },
+    { ticker: 'MSFT', price: 415.5 },
+    { ticker: 'GOOGL', price: 175.8 },
+    { ticker: 'TSLA', price: 245.6 },
+    { ticker: 'AMZN', price: 198.4 },
+    { ticker: 'NVDA', price: 875.2 },
+    { ticker: 'META', price: 530.1 },
   ];
 
   for (const { ticker, price } of stockPrices) {
     await prisma.stockPrice.upsert({
       where: { ticker },
-      update: {},          // Don't overwrite if already set by the batch worker
+      update: {}, // Don't overwrite if already set by the batch worker
       create: { ticker, price, updatedAt: new Date() },
     });
   }
