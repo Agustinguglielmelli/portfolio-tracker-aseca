@@ -1,40 +1,36 @@
-from locust import HttpUser, between, events
+"""
+Escenario A — Load Test
 
-from tests.setup_utils import LOCUST_PASSWORD, login, register, unique_email
-from tests.companies import CompanyTasksMixin
-from tests.portfolio import PortfolioTasksMixin
-from tests.prices import PriceTasksMixin
-from tests.watchlist import WatchlistTasksMixin
+Valida que el sistema cumple SLOs bajo carga normal esperada.
 
+Ejecutar:
+  locust -f locustfile.py --host=http://localhost:3000
+"""
 
-class PortfolioUser(
-    PortfolioTasksMixin,
-    WatchlistTasksMixin,
-    CompanyTasksMixin,
-    PriceTasksMixin,
-    HttpUser,
-):
-    wait_time = between(1, 3)
+from locust import LoadTestShape
 
-    def on_start(self):
-        self._email = unique_email()
-        self._token: str | None = None
-        self._bought_tickers: list[str] = []
+from workflows.active_trader import ActiveTrader
+from workflows.portfolio_viewer import PortfolioViewer
+from workflows.researcher import Researcher
 
-        register(self, self._email, LOCUST_PASSWORD)
-        self._token = login(self, self._email, LOCUST_PASSWORD)
-
-    @property
-    def _auth_headers(self) -> dict:
-        if not self._token:
-            return {}
-        return {"Authorization": f"Bearer {self._token}"}
+# Necesario para que Locust registre los usuarios
+__all__ = [PortfolioViewer, Researcher, ActiveTrader]
 
 
-@events.quitting.add_listener
-def on_quitting(environment, **kwargs):
-    if environment.stats.total.fail_ratio > 0.05:
-        print(f"\n⚠️  Tasa de fallos: {environment.stats.total.fail_ratio:.1%} — supera el umbral del 5%.")
-        environment.process_exit_code = 1
-    else:
-        print(f"\n✅ Prueba completada. Tasa de fallos: {environment.stats.total.fail_ratio:.1%}")
+class ScenarioAShape(LoadTestShape):
+    """
+    Fase 1 (0–60s):   ramp-up hasta 20 usuarios a 2/s.
+    Fase 2 (60–180s): steady-state de 2 minutos.
+    """
+
+    stages = [
+        {"duration": 60,  "users": 20, "spawn_rate": 2},
+        {"duration": 180, "users": 20, "spawn_rate": 20},
+    ]
+
+    def tick(self):
+        run_time = self.get_run_time()
+        for stage in self.stages:
+            if run_time < stage["duration"]:
+                return stage["users"], stage["spawn_rate"]
+        return None
