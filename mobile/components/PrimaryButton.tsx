@@ -5,14 +5,16 @@ type Props = {
   label: string;
   onPress: () => void;
   loading?: boolean;
+  testID?: string;
 };
 
-export default function PrimaryButton({ label, onPress, loading = false }: Props) {
+export default function PrimaryButton({ label, onPress, loading = false, testID }: Props) {
   return (
     <TouchableOpacity
       style={[styles.button, loading && styles.disabled]}
       onPress={onPress}
       disabled={loading}
+      testID={testID}
     >
       {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.text}>{label}</Text>}
     </TouchableOpacity>

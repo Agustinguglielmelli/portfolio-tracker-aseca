@@ -53,6 +53,7 @@ export default function LoginScreen() {
         keyboardType="email-address"
         autoCapitalize="none"
         autoCorrect={false}
+        testID="email-input"
       />
       <FormInput
         label="Contraseña"
@@ -60,8 +61,9 @@ export default function LoginScreen() {
         value={password}
         onChangeText={setPassword}
         secureTextEntry
+        testID="password-input"
       />
-      <PrimaryButton label="Ingresar" onPress={handleLogin} loading={loading} />
+      <PrimaryButton label="Ingresar" onPress={handleLogin} loading={loading} testID="login-submit" />
     </AuthLayout>
   );
 }
