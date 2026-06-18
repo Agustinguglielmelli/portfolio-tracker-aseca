@@ -93,6 +93,30 @@ describe('Companies Integration', () => {
     expect(typeof lastRevenue.value).toBe('number');
   });
 
+  it('/companies/search (GET) - Empty query should return empty array', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/companies/search')
+      .expect(200);
+
+    expect(response.body).toEqual([]);
+  });
+
+  it('/companies/:ticker/filings (GET) - Non-existent ticker should return 404', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/companies/FAKEINVALID/filings')
+      .expect(404);
+
+    expect(response.body.message).toContain('FAKEINVALID no existe');
+  });
+
+  it('/companies/:ticker/historical-metrics (GET) - Non-existent ticker should return 404', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/companies/FAKEINVALID/historical-metrics')
+      .expect(404);
+
+    expect(response.body.message).toContain('FAKEINVALID no existe');
+  });
+
   afterAll(async () => {
     await prisma.$disconnect();
     await app.close();
