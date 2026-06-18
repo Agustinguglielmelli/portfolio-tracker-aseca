@@ -9,7 +9,9 @@
   "collectCoverageFrom": [
     "src/**/*.(t|j)s",
     "!src/main.ts",
-    "!src/**/*.module.ts"
+    "!src/**/*.module.ts",
+    "!src/**/*.repository.ts",
+    "!src/prisma/**/*.ts"
   ],
   "coverageDirectory": "./coverage",
   "coverageReporters": ["html", "text", "text-summary", "lcov"]

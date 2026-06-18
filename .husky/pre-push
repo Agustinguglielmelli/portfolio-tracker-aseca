@@ -1,6 +1,6 @@
 #!/bin/sh
 
-MIN_COVERAGE=20
+MIN_COVERAGE=80
 
 if [ "$CI" = "true" ]; then exit 0; fi
 
