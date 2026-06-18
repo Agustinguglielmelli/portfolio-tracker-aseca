@@ -1,7 +1,7 @@
 export {};
 
 const PASSWORD = 'Password123!';
-const API = 'http://localhost:3000';
+const API = 'http://localhost:3002';
 
 const generateEmail = (prefix: string) => `${prefix}_${Date.now()}@test.com`;
 

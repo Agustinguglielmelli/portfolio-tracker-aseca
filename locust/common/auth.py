@@ -18,7 +18,7 @@ def register(user, email: str, password: str) -> None:
             resp.failure(f"Register failed: {resp.status_code} — {resp.text[:200]}")
 
 
-def login(user, email: str, password: str) -> str | None:
+def login(user, email: str, password: str):
     with user.client.post(
         "/auth/login",
         json={"email": email, "password": password},

@@ -39,7 +39,7 @@ export default function CompanySearchScreen() {
     setError('');
     try {
       const data = await companiesApi.search(q.trim());
-      setResults(data.filter((c) => !!c.ticker));
+      setResults(data.filter((c) => !!c.ticker) as any);
       setHasSearched(true);
     } catch {
       setError('No se pudo realizar la búsqueda.');
@@ -56,6 +56,8 @@ export default function CompanySearchScreen() {
 
   const renderItem = ({ item }: { item: CompanySearchResult }) => (
     <TouchableOpacity
+      testID={`ticker-option-${item.ticker}`}
+      accessibilityLabel={`ticker-option-${item.ticker}`}
       style={styles.resultItem}
       onPress={() => router.push(`/(app)/companies/${item.ticker}`)}
       activeOpacity={0.75}
@@ -87,6 +89,8 @@ export default function CompanySearchScreen() {
       {/* Search input */}
       <View style={styles.searchRow}>
         <TextInput
+          testID="ticker-search"
+          accessibilityLabel="ticker-search"
           style={styles.input}
           placeholder="Nombre o ticker (ej. AAPL, Apple)"
           placeholderTextColor={colors.textMuted}
@@ -103,9 +107,9 @@ export default function CompanySearchScreen() {
       </View>
 
       {/* Error */}
-      {!!error && (
-        <Text style={styles.errorText}>{error}</Text>
-      )}
+      {error ? (
+        <Text testID="error-message" style={styles.errorText}>{error}</Text>
+      ) : null}
 
       {/* Empty state */}
       {hasSearched && results.length === 0 && !loading && (

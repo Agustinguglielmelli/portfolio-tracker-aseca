@@ -33,7 +33,7 @@ export default function AuthLayout({ title, children, footer, error }: Props) {
         <View style={styles.card}>
           {error ? (
             <View style={styles.errorBox}>
-              <Text style={styles.errorText}>⚠ {error}</Text>
+              <Text testID="auth-error" style={styles.errorText}>⚠ {error}</Text>
             </View>
           ) : null}
           {children}

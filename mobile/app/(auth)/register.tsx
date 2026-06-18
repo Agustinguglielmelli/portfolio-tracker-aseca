@@ -66,6 +66,7 @@ export default function RegisterScreen() {
         value={password}
         onChangeText={setPassword}
         secureTextEntry
+        textContentType="oneTimeCode"
       />
       <FormInput
         label="Confirmar contraseña"
@@ -73,8 +74,9 @@ export default function RegisterScreen() {
         value={confirmPassword}
         onChangeText={setConfirmPassword}
         secureTextEntry
+        textContentType="oneTimeCode"
       />
-      <PrimaryButton label="Crear cuenta" onPress={handleRegister} loading={loading} />
+      <PrimaryButton label="Crear cuenta" onPress={handleRegister} loading={loading} testID="register-submit" />
     </AuthLayout>
   );
 }

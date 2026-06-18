@@ -1,7 +1,7 @@
 import { defineConfig } from 'cypress';
 import { Client } from 'pg';
 
-const DB_URL = 'postgres://postgres:password@localhost:5433/integration_test_db';
+const DB_URL = process.env.CYPRESS_DB_URL || 'postgres://postgres:password@localhost:5434/integration_test_db';
 
 async function getClient() {
     const client = new Client({ connectionString: DB_URL });

@@ -1,0 +1,59 @@
+services:
+  mobile-e2e-db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_TEST_DB}
+    ports:
+      - "5435:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  mobile-e2e-python-worker:
+    build:
+      context: ./python-worker
+    ports:
+      - "8003:8000"
+    env_file:
+      - ./python-worker/.env
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@mobile-e2e-db:5432/${POSTGRES_TEST_DB}
+    depends_on:
+      mobile-e2e-db:
+        condition: service_healthy
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  mobile-e2e-backend:
+    build:
+      context: ./back
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./back/.env
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@mobile-e2e-db:5432/${POSTGRES_TEST_DB}
+      PYTHON_WORKER_URL: http://mobile-e2e-python-worker:8000
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+    command: sh -c "npx prisma migrate deploy && npx prisma db seed && node dist/main"
+    depends_on:
+      mobile-e2e-db:
+        condition: service_healthy
+      mobile-e2e-python-worker:
+        condition: service_healthy
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000', (res) => process.exit(res.statusCode < 500 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 5s
+      timeout: 5s
+      retries: 10

@@ -2,7 +2,7 @@ export {};
 
 const EMAIL = 'e2e_watchlist@test.com';
 const PASSWORD = 'Password123!';
-const API = 'http://localhost:3000';
+const API = 'http://localhost:3002';
 
 describe('Watchlist', () => {
     before(() => {

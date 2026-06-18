@@ -1,7 +1,7 @@
 export {};
 const EMAIL = 'e2e_portfolio@test.com';
 const PASSWORD = 'Password123!';
-const API = 'http://localhost:3000';
+const API = 'http://localhost:3002';
 
 // Helper: comprar via API sin pasar por ui asi por ej en los sell no tengo que comprar de nuevo por ui
 const buyViaApi = (ticker: string, quantity: number) =>

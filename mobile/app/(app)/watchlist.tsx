@@ -10,6 +10,7 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Keyboard,
 } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { watchlistApi, companiesApi, WatchlistItem } from '@/services/api';
@@ -45,17 +46,36 @@ export default function WatchlistScreen() {
       return;
     }
     setSearching(true);
-    try {
-      const results = await companiesApi.search(text.trim());
-      setSuggestions(results.slice(0, 5));
-    } catch {
-      setSuggestions([]);
-    } finally {
-      setSearching(false);
-    }
   };
 
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+      if (query.trim().length < 1) return;
+
+      const timeout = setTimeout(async () => {
+        try {
+          const results = await companiesApi.search(query.trim());
+          if (active) {
+            const valid = results.filter((r) => !!r.ticker);
+            setSuggestions(valid.slice(0, 5));
+          }
+        } catch {
+          if (active) setSuggestions([]);
+        } finally {
+          if (active) setSearching(false);
+        }
+      }, 350);
+
+      return () => {
+        active = false;
+        clearTimeout(timeout);
+      };
+    }, [query])
+  );
+
   const handleAdd = async (ticker: string) => {
+    Keyboard.dismiss();
     setSuggestions([]);
     setQuery('');
     setAdding(true);
@@ -105,12 +125,16 @@ export default function WatchlistScreen() {
   const renderItem = ({ item }: { item: WatchlistItem }) => {
     const isSelected = selected.includes(item.ticker);
     return (
-      <TouchableOpacity
+      <View
         style={[styles.row, isSelected && styles.rowSelected]}
-        onPress={() => toggleSelect(item.ticker)}
-        activeOpacity={0.75}
       >
-        <View style={styles.rowLeft}>
+        <TouchableOpacity
+          testID={`watchlist-item-${item.ticker}`}
+          accessibilityLabel={`watchlist-item-${item.ticker}`}
+          style={[styles.rowLeft, { flex: 1 }]}
+          onPress={() => toggleSelect(item.ticker)}
+          activeOpacity={0.75}
+        >
           <View style={[styles.tickerBadge, isSelected && styles.tickerBadgeSelected]}>
             <Text style={styles.tickerText}>{item.ticker}</Text>
           </View>
@@ -120,11 +144,11 @@ export default function WatchlistScreen() {
               {item.currentPrice != null ? `$${item.currentPrice.toFixed(2)}` : '—'}
             </Text>
           </View>
-        </View>
-        <TouchableOpacity style={styles.removeBtn} onPress={() => handleRemove(item.ticker)}>
+        </TouchableOpacity>
+        <TouchableOpacity testID={`remove-watchlist-${item.ticker}`} accessibilityLabel={`remove-watchlist-${item.ticker}`} style={styles.removeBtn} onPress={() => handleRemove(item.ticker)}>
           <Text style={styles.removeBtnText}>✕</Text>
         </TouchableOpacity>
-      </TouchableOpacity>
+      </View>
     );
   };
 
@@ -143,6 +167,8 @@ export default function WatchlistScreen() {
 
       <View style={styles.searchBox}>
         <TextInput
+          testID="ticker-search"
+          accessibilityLabel="ticker-search"
           style={styles.input}
           placeholder="Buscar empresa o ticker…"
           placeholderTextColor={colors.textMuted}
@@ -159,9 +185,11 @@ export default function WatchlistScreen() {
           {searching && (
             <ActivityIndicator color={colors.primary} style={{ marginVertical: spacing.xs }} />
           )}
-          {suggestions.map((s) => (
+          {suggestions.map((s, index) => (
             <TouchableOpacity
-              key={s.ticker}
+              key={s.ticker || index}
+              testID={`ticker-option-${s.ticker}`}
+              accessibilityLabel={`ticker-option-${s.ticker}`}
               style={styles.suggestionRow}
               onPress={() => handleAdd(s.ticker)}
             >
@@ -175,7 +203,7 @@ export default function WatchlistScreen() {
       )}
 
       {selected.length > 0 && (
-        <TouchableOpacity style={styles.compareBar} onPress={handleCompare}>
+        <TouchableOpacity testID="watchlist-comparison" accessibilityLabel="watchlist-comparison" style={styles.compareBar} onPress={handleCompare}>
           <Text style={styles.compareText}>
             Comparar {selected.length} empresa{selected.length !== 1 ? 's' : ''} →
           </Text>
@@ -206,6 +234,7 @@ export default function WatchlistScreen() {
           renderItem={renderItem}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         />
       )}
     </KeyboardAvoidingView>
