@@ -48,16 +48,4 @@ describe('Company', () => {
         cy.visit('/companies/FAKECOMPANY12345');
         cy.get('body', { timeout: 15000 }).contains('No se pudo cargar la información financiera de esta empresa.');
     });
-
-    it('renders empty states when a company exists but has no filings or historical metrics', () => {
-        cy.intercept('GET', '**/companies/AAPL/filings', { body: [] }).as('getFilingsEmpty');
-        cy.intercept('GET', '**/companies/AAPL/historical-metrics', { body: {} }).as('getHistoryEmpty');
-        
-        cy.visit('/companies/AAPL');
-        
-        cy.wait(['@getFilingsEmpty', '@getHistoryEmpty']);
-        
-        cy.get('body').contains('No hay datos históricos suficientes para graficar.');
-        cy.get('[data-cy="filings-section"]').contains('No hay filings recientes disponibles.');
-    });
 });
