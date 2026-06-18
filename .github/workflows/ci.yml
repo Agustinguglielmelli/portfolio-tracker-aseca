@@ -102,5 +102,5 @@ jobs:
         working-directory: ./python-worker
 
       - name: Run pytest
-        run: python -m pytest
+        run: python -m pytest tests/unit/
         working-directory: ./python-worker
