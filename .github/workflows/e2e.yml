@@ -1,0 +1,76 @@
+name: CD/E2E - End-to-End Tests
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  e2e-web:
+    name: Cypress Web E2E Tests
+    runs-on: ubuntu-latest
+    env:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_TEST_DB: integration_test_db
+      ADMIN_EMAIL: admin@test.com
+      ADMIN_PASSWORD: Password123!
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Start Web E2E Stack
+        run: docker compose -f docker-compose.web.e2e.yml up -d --build --wait
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: front/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: ./front
+
+      - name: Run Cypress Tests
+        run: npx cypress run
+        working-directory: ./front
+
+      - name: Stop Stack
+        if: always()
+        run: docker compose -f docker-compose.web.e2e.yml down -v
+
+  e2e-mobile:
+    name: Appium Mobile E2E Tests
+    runs-on: ubuntu-latest
+    env:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_TEST_DB: integration_test_db
+      ADMIN_EMAIL: admin@test.com
+      ADMIN_PASSWORD: Password123!
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Start Mobile E2E Stack
+        run: docker compose -f docker-compose.mobile.e2e.yml up -d --build --wait
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Install mobile dependencies
+        run: npm ci
+        working-directory: ./mobile
+
+      - name: Run Appium/WDIO Tests
+        run: npx wdio run e2e/wdio.config.ts
+        working-directory: ./mobile
+
+      - name: Stop Stack
+        if: always()
+        run: docker compose -f docker-compose.mobile.e2e.yml down -v

@@ -8,7 +8,7 @@ Cypress.Commands.add('loginByToken', (token: string) => {
 
 // Login via API — más rápido que llenar el formulario
 Cypress.Commands.add('loginByApi', (email: string, password: string) => {
-    cy.request('POST', 'http://localhost:3000/auth/login', { email, password }).then(({ body }) => {
+    cy.request('POST', 'http://localhost:3002/auth/login', { email, password }).then(({ body }) => {
         const token = body.token || body.access_token;
         cy.window().then((win) => win.localStorage.setItem('token', token));
     });

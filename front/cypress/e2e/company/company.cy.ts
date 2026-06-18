@@ -2,7 +2,7 @@ export {};
 
 const EMAIL = 'e2e_company@test.com';
 const PASSWORD = 'Password123!';
-const API = 'http://127.0.0.1:3000';
+const API = 'http://127.0.0.1:3002';
 
 describe('Company', () => {
     before(() => {

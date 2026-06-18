@@ -1,0 +1,74 @@
+services:
+  web-e2e-db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_TEST_DB:-integration_test_db}
+    ports:
+      - "5434:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web-e2e-python-worker:
+    build:
+      context: ./python-worker
+    ports:
+      - "8002:8000"
+    env_file:
+      - ./python-worker/.env
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@web-e2e-db:5432/${POSTGRES_TEST_DB:-integration_test_db}
+    depends_on:
+      web-e2e-db:
+        condition: service_healthy
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
+  web-e2e-backend:
+    build:
+      context: ./back
+    ports:
+      - "3002:3000"
+    env_file:
+      - ./back/.env
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@web-e2e-db:5432/${POSTGRES_TEST_DB:-integration_test_db}
+      PYTHON_WORKER_URL: http://web-e2e-python-worker:8000
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@test.com}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-Password123!}
+    command: sh -c "npx prisma generate && npx prisma db push --accept-data-loss && npx prisma db seed && npm run start:dev"
+    volumes:
+      - ./back:/app
+      - /app/node_modules
+    depends_on:
+      web-e2e-db:
+        condition: service_healthy
+      web-e2e-python-worker:
+        condition: service_healthy
+    restart: on-failure
+    healthcheck:
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:3000', (res) => process.exit(res.statusCode < 500 ? 0 : 1)).on('error', () => process.exit(1))" ]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+
+  web-e2e-frontend:
+    build:
+      context: ./front
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./front:/app
+      - /app/node_modules
+    environment:
+      VITE_API_URL: http://localhost:3002
+    depends_on:
+      - web-e2e-backend
