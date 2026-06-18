@@ -1,9 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  BadRequestException,
-  ForbiddenException,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { TransactionType } from '@prisma/client';
 import { PortfolioService } from '../../../src/portfolio/service/portfolio.service';
 import { PortfolioRepository } from '../../../src/portfolio/repository/portfolio.repository';
