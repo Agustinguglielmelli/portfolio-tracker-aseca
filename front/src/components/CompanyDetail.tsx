@@ -136,7 +136,7 @@ export const CompanyDetail = () => {
                     <h1 className="text-3xl font-bold text-white">{ticker}</h1>
                     <p className="text-slate-400 text-sm mt-1">Datos financieros</p>
                 </header>
-                <section>
+                <section data-cy="metrics-section">
                     <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Métricas Actuales</h2>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <MetricCard title="Revenue" value={formatCurrency(metrics?.revenue)} />
@@ -189,7 +189,7 @@ export const CompanyDetail = () => {
                     </div>
                 </section>
 
-                <section>
+                <section data-cy="filings-section">
                     <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Filings Recientes (10-K / 10-Q)</h2>
                     <div className="bg-slate-800/50 border border-slate-700/60 rounded-2xl divide-y divide-slate-700/50 overflow-hidden">
                         {filings.length > 0 ? filings.map((filing: Filing) => (
