@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
-import { ServiceUnavailableException } from '@nestjs/common';
+import { Logger, ServiceUnavailableException } from '@nestjs/common';
 import { PricesService } from '../../../src/prices/service/prices.service';
 import { PrismaService } from '../../../src/prisma/prisma.service';
 
@@ -23,6 +23,8 @@ describe('PricesService', () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
+    jest.spyOn(Logger.prototype, 'log').mockImplementation(() => {});
+    jest.spyOn(Logger.prototype, 'error').mockImplementation(() => {});
     mockConfigService.get.mockReturnValue('http://python-worker:8000');
 
     const module: TestingModule = await Test.createTestingModule({
