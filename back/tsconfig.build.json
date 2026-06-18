@@ -7,6 +7,8 @@
     "**/*spec.ts",
     "prisma.config.ts",
     "test_prisma.ts",
-    "test_prisma_options.js"
+    "test_prisma_options.js",
+    "jest.config.ts",
+    "prisma"
   ]
 }

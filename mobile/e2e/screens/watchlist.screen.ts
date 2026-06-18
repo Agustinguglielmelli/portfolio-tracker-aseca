@@ -43,7 +43,6 @@ export class WatchlistScreen {
   }
 
   async selectWatchlistItem(ticker: string) {
-    const elem = await this.app.el(`watchlist-item-${ticker}`);
-    await elem.click();
+    await this.app.tap(`watchlist-item-${ticker}`);
   }
 }

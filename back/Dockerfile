@@ -35,5 +35,6 @@ COPY --from=builder /app/node_modules ./node_modules
 # Copying node_modules from one Docker stage to another Docker stage is the INDUSTRY STANDARD. (Because both stages are identical Linux environments, and it allows you to discard build tools and caches).
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/prisma.config.ts ./
 COPY --from=builder /app/dist ./dist
 EXPOSE 3000

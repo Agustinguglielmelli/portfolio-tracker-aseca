@@ -10,6 +10,7 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Keyboard,
 } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { watchlistApi, companiesApi, WatchlistItem } from '@/services/api';
@@ -74,6 +75,7 @@ export default function WatchlistScreen() {
   );
 
   const handleAdd = async (ticker: string) => {
+    Keyboard.dismiss();
     setSuggestions([]);
     setQuery('');
     setAdding(true);

@@ -5,6 +5,7 @@ import { execSync } from 'child_process';
 import { config as loadEnv } from 'dotenv';
 
 loadEnv({ path: path.resolve(__dirname, '..', '..', 'back', '.env.test'), override: true });
+process.env.DATABASE_URL = 'postgres://postgres:password@localhost:5435/integration_test_db';
 
 function findAppPath(): string {
   const derivedData = path.join(process.env.HOME!, 'Library/Developer/Xcode/DerivedData');
@@ -50,7 +51,7 @@ export const config: any = {
   connectionRetryTimeout: 120000,
   connectionRetryCount: 3,
 
-  services: [],
+  services: ['appium'],
 
   framework: 'mocha',
   reporters: ['spec'],
@@ -58,5 +59,22 @@ export const config: any = {
   mochaOpts: {
     ui: 'bdd',
     timeout: 120000,
+  },
+
+  onPrepare: function () {
+    try {
+      execSync('docker compose -f ../docker-compose.mobile.e2e.yml up -d --build --wait', { stdio: 'inherit' });
+    } catch (error) {
+      console.error('Failed to start docker compose', error);
+      throw error;
+    }
+  },
+
+  onComplete: function () {
+    try {
+      execSync('docker compose -f ../docker-compose.mobile.e2e.yml down -v', { stdio: 'inherit' });
+    } catch (error) {
+      console.error('Failed to stop docker compose', error);
+    }
   },
 };
