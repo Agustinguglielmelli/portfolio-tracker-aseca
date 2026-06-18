@@ -26,6 +26,12 @@ describe('WatchlistController Integration', () => {
       update: { price: 150 },
       create: { ticker: 'AAPL', price: 150 },
     });
+
+    await prisma.stockPrice.upsert({
+      where: { ticker: 'MSFT' },
+      update: { price: 300 },
+      create: { ticker: 'MSFT', price: 300 },
+    });
   });
 
   beforeEach(async () => {
@@ -51,13 +57,14 @@ describe('WatchlistController Integration', () => {
   afterAll(async () => {
     await prisma.watchlistItem.deleteMany({ where: { userId } });
     await prisma.stockPrice.deleteMany({ where: { ticker: 'AAPL' } });
+    await prisma.stockPrice.deleteMany({ where: { ticker: 'MSFT' } });
     await prisma.user.deleteMany({ where: { email: testEmail } });
     await prisma.$disconnect();
     await app.close();
   });
 
   describe('POST /watchlist', () => {
-    it('agrega un ticker a la watchlist', async () => {
+    it('should add a ticker to the watchlist', async () => {
       await request(app.getHttpServer())
         .post('/watchlist')
         .set('Authorization', `Bearer ${token}`)
@@ -69,7 +76,7 @@ describe('WatchlistController Integration', () => {
       expect(items[0].ticker).toBe('AAPL');
     });
 
-    it('devuelve 409 si ya esta en la watchlist', async () => {
+    it('should return 409 if ticker is already in the watchlist', async () => {
       await request(app.getHttpServer())
         .post('/watchlist')
         .set('Authorization', `Bearer ${token}`)
@@ -82,7 +89,7 @@ describe('WatchlistController Integration', () => {
         .expect(409);
     });
 
-    it('devuelve 404 si el ticker no existe', async () => {
+    it('should return 404 if the ticker does not exist', async () => {
       await request(app.getHttpServer())
         .post('/watchlist')
         .set('Authorization', `Bearer ${token}`)
@@ -92,7 +99,7 @@ describe('WatchlistController Integration', () => {
   });
 
   describe('DELETE /watchlist/:ticker', () => {
-    it('elimina un ticker de la watchlist', async () => {
+    it('should remove a ticker from the watchlist', async () => {
       await request(app.getHttpServer())
         .post('/watchlist')
         .set('Authorization', `Bearer ${token}`)
@@ -107,7 +114,7 @@ describe('WatchlistController Integration', () => {
       expect(items).toHaveLength(0);
     });
 
-    it('devuelve 404 si el ticker no esta en la watchlist', async () => {
+    it('should return 404 if the ticker is not in the watchlist', async () => {
       await request(app.getHttpServer())
         .delete('/watchlist/AAPL')
         .set('Authorization', `Bearer ${token}`)
@@ -116,7 +123,7 @@ describe('WatchlistController Integration', () => {
   });
 
   describe('GET /watchlist', () => {
-    it('devuelve array vacío si no hay tickers', async () => {
+    it('should return an empty array if there are no tickers', async () => {
       const res = await request(app.getHttpServer())
         .get('/watchlist')
         .set('Authorization', `Bearer ${token}`)
@@ -125,7 +132,7 @@ describe('WatchlistController Integration', () => {
       expect(res.body).toEqual([]);
     });
 
-    it('devuelve la lista de tickers', async () => {
+    it('should return the list of tickers in the watchlist', async () => {
       await request(app.getHttpServer())
         .post('/watchlist')
         .set('Authorization', `Bearer ${token}`)
@@ -133,6 +140,55 @@ describe('WatchlistController Integration', () => {
 
       const res = await request(app.getHttpServer())
         .get('/watchlist')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+
+      expect(res.body).toHaveLength(1);
+      expect(res.body[0].ticker).toBe('AAPL');
+    });
+  });
+
+  describe('GET /watchlist/compare', () => {
+    it('should return empty array if no tickers query is provided', async () => {
+      const res = await request(app.getHttpServer())
+        .get('/watchlist/compare')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+
+      expect(res.body).toEqual([]);
+    });
+
+    it('should return comparison metrics for valid tickers in watchlist', async () => {
+      await request(app.getHttpServer())
+        .post('/watchlist')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ ticker: 'AAPL' });
+
+      await request(app.getHttpServer())
+        .post('/watchlist')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ ticker: 'MSFT' });
+
+      const res = await request(app.getHttpServer())
+        .get('/watchlist/compare?tickers=AAPL,MSFT')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+
+      expect(res.body).toHaveLength(2);
+      expect(res.body[0].ticker).toBe('AAPL');
+      expect(res.body[0]).toHaveProperty('revenue');
+      expect(res.body[1].ticker).toBe('MSFT');
+      expect(res.body[1]).toHaveProperty('revenue');
+    });
+
+    it('should filter out tickers not in the users watchlist', async () => {
+      await request(app.getHttpServer())
+        .post('/watchlist')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ ticker: 'AAPL' });
+
+      const res = await request(app.getHttpServer())
+        .get('/watchlist/compare?tickers=AAPL,MSFT')
         .set('Authorization', `Bearer ${token}`)
         .expect(200);
 
