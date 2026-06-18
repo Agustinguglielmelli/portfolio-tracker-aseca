@@ -1,4 +1,3 @@
-/// <reference types="jest" />
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
@@ -47,7 +46,6 @@ describe('PortfolioController Integration', () => {
     });
     userId = user!.id;
 
-    // Restaurar precio en caso de que algún test lo haya modificado
     await prisma.stockPrice.upsert({
       where: { ticker: 'AAPL' },
       update: { price: 150 },
@@ -66,7 +64,7 @@ describe('PortfolioController Integration', () => {
   });
 
   describe('POST /portfolio/buy', () => {
-    it('compra acciones y las guarda en la DB', async () => {
+    it('buys shares and saves them in the DB', async () => {
       await request(app.getHttpServer())
         .post('/portfolio/buy')
         .set('Authorization', `Bearer ${token}`)
@@ -82,7 +80,29 @@ describe('PortfolioController Integration', () => {
       expect(txs[0].priceAtOp).toBe(150);
     });
 
-    it('devuelve 404 si el ticker no tiene precio registrado', async () => {
+    it('returns 400 if quantity is zero or negative', async () => {
+      await request(app.getHttpServer())
+        .post('/portfolio/buy')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ ticker: 'AAPL', quantity: -5, date: '2026-01-01' })
+        .expect(400);
+
+      await request(app.getHttpServer())
+        .post('/portfolio/buy')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ ticker: 'AAPL', quantity: 0, date: '2026-01-01' })
+        .expect(400);
+    });
+
+    it('returns 400 if ticker is missing', async () => {
+      await request(app.getHttpServer())
+        .post('/portfolio/buy')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ quantity: 10, date: '2026-01-01' })
+        .expect(400);
+    });
+
+    it('returns 404 if the ticker has no registered price', async () => {
       await request(app.getHttpServer())
         .post('/portfolio/buy')
         .set('Authorization', `Bearer ${token}`)
@@ -90,7 +110,7 @@ describe('PortfolioController Integration', () => {
         .expect(404);
     });
 
-    it('devuelve 401 sin token', async () => {
+    it('returns 401 without token', async () => {
       await request(app.getHttpServer())
         .post('/portfolio/buy')
         .send({ ticker: 'AAPL', quantity: 10, date: '2026-01-01' })
@@ -99,7 +119,7 @@ describe('PortfolioController Integration', () => {
   });
 
   describe('POST /portfolio/sell', () => {
-    it('vende acciones y persiste la transacción correctamente', async () => {
+    it('sells shares and persists the transaction correctly', async () => {
       await request(app.getHttpServer())
         .post('/portfolio/buy')
         .set('Authorization', `Bearer ${token}`)
@@ -121,7 +141,7 @@ describe('PortfolioController Integration', () => {
       expect(sell!.priceAtOp).toBe(150);
     });
 
-    it('devuelve 400 si no tiene posición en ese ticker', async () => {
+    it('returns 400 if it has no position in that ticker', async () => {
       await request(app.getHttpServer())
         .post('/portfolio/sell')
         .set('Authorization', `Bearer ${token}`)
@@ -129,7 +149,7 @@ describe('PortfolioController Integration', () => {
         .expect(400);
     });
 
-    it('devuelve 400 si intenta vender más de lo disponible', async () => {
+    it('returns 400 if it tries to sell more than available', async () => {
       await request(app.getHttpServer())
         .post('/portfolio/buy')
         .set('Authorization', `Bearer ${token}`)
@@ -144,7 +164,7 @@ describe('PortfolioController Integration', () => {
   });
 
   describe('GET /portfolio', () => {
-    it('devuelve array vacío si no hay transacciones', async () => {
+    it('returns empty array if there are no transactions', async () => {
       const res = await request(app.getHttpServer())
         .get('/portfolio')
         .set('Authorization', `Bearer ${token}`)
@@ -153,7 +173,7 @@ describe('PortfolioController Integration', () => {
       expect(res.body).toEqual([]);
     });
 
-    it('devuelve posición con P&L calculado correctamente', async () => {
+    it('returns position with correctly calculated P&L', async () => {
       await request(app.getHttpServer())
         .post('/portfolio/buy')
         .set('Authorization', `Bearer ${token}`)
@@ -177,7 +197,7 @@ describe('PortfolioController Integration', () => {
       });
     });
 
-    it('calcula avgCost y pnl correctamente después de múltiples compras y una venta parcial', async () => {
+    it('correctly calculates avgCost and pnl after multiple buys and a partial sell', async () => {
       await request(app.getHttpServer())
         .post('/portfolio/buy')
         .set('Authorization', `Bearer ${token}`)
@@ -216,7 +236,7 @@ describe('PortfolioController Integration', () => {
       });
     });
 
-    it('no muestra tickers con posición cerrada', async () => {
+    it('does not show tickers with closed positions', async () => {
       await request(app.getHttpServer())
         .post('/portfolio/buy')
         .set('Authorization', `Bearer ${token}`)
@@ -237,7 +257,7 @@ describe('PortfolioController Integration', () => {
   });
 
   describe('GET /portfolio/transactions', () => {
-    it('devuelve el historial de transacciones del usuario', async () => {
+    it('returns the user transaction history', async () => {
       await request(app.getHttpServer())
         .post('/portfolio/buy')
         .set('Authorization', `Bearer ${token}`)
