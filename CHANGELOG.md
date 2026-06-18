@@ -1,3 +1,16 @@
+# [1.7.0](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/compare/v1.6.0...v1.7.0) (2026-06-18)
+
+
+### Bug Fixes
+
+* fixed companiesapi mobile ([26dc016](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/commit/26dc016487a6a08cc2eac409eb905acef1fb71b1))
+
+
+### Features
+
+* added portfolio management (buy and sell) for mobile ([1758904](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/commit/1758904833cda598a5857af6ef4a86eae1a7f003))
+* search companies and view metrics for mobile ([c11eab8](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/commit/c11eab8b826ddc14ff65307aa81fa4dd9178610b))
+
 # [1.6.0](https://github.com/Agustinguglielmelli/portfolio-tracker-aseca/compare/v1.5.0...v1.6.0) (2026-06-17)
 
 
