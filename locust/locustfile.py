@@ -13,16 +13,10 @@ from workflows.active_trader import ActiveTrader
 from workflows.portfolio_viewer import PortfolioViewer
 from workflows.researcher import Researcher
 
-# Necesario para que Locust registre los usuarios
 __all__ = [PortfolioViewer, Researcher, ActiveTrader]
 
 
 class ScenarioAShape(LoadTestShape):
-    """
-    Fase 1 (0–60s):   ramp-up hasta 20 usuarios a 2/s.
-    Fase 2 (60–180s): steady-state de 2 minutos.
-    """
-
     stages = [
         {"duration": 60,  "users": 20, "spawn_rate": 2},
         {"duration": 180, "users": 20, "spawn_rate": 20},
