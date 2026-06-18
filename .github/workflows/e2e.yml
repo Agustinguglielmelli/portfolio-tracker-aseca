@@ -19,6 +19,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Create python-worker env file
+        run: touch python-worker/.env
+
       - name: Start Web E2E Stack
         run: docker compose -f docker-compose.web.e2e.yml up -d --build --wait
 
@@ -52,6 +55,9 @@ jobs:
       ADMIN_PASSWORD: Password123!
     steps:
       - uses: actions/checkout@v4
+
+      - name: Create python-worker env file
+        run: touch python-worker/.env
 
       - name: Start Mobile E2E Stack
         run: docker compose -f docker-compose.mobile.e2e.yml up -d --build --wait
