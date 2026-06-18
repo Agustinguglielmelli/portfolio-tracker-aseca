@@ -39,7 +39,7 @@ export const config: any = {
       'appium:platformVersion': '26.5',
       'appium:app': findAppPath(),
       'appium:bundleId': 'com.anonymous.portfolio-tracker',
-      'appium:noReset': false,  // limpia estado entre suites
+      'appium:noReset': false,
       'appium:newCommandTimeout': 240,
     },
   ],

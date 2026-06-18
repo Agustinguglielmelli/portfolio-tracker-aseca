@@ -24,7 +24,6 @@ export class WatchlistScreen {
   async removeWatchlistItem(ticker: string) {
     await this.app.tap(`remove-watchlist-${ticker}`);
 
-    // Wait for the native alert and accept it
     await driver.waitUntil(
       async () => {
         try {
@@ -44,6 +43,7 @@ export class WatchlistScreen {
   }
 
   async selectWatchlistItem(ticker: string) {
-    await this.app.tap(`watchlist-item-checkbox-${ticker}`);
+    const elem = await this.app.el(`watchlist-item-${ticker}`);
+    await elem.click();
   }
 }

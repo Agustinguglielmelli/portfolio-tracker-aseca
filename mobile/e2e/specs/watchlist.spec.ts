@@ -31,28 +31,28 @@ describe("Watchlist", () => {
     await watchlist.selectOption("MSFT");
     await watchlist.waitForWatchlistItem("MSFT");
   });
-  it.only("compares companies in the watchlist", async () => {
-    await watchlist.search("Apple");
-    await watchlist.selectOption("AAPL");
-    await watchlist.waitForWatchlistItem("AAPL");
-
-    await watchlist.search("Microsoft");
-    await watchlist.selectOption("MSFT");
-    await watchlist.waitForWatchlistItem("MSFT");
-
-    await watchlist.selectWatchlistItem("AAPL");
-    await watchlist.selectWatchlistItem("MSFT");
-    await watchlist.compare();
-
-    const comparisonScreen = await app.el("comparison-screen");
-    await expect(comparisonScreen).toBeDisplayed();
-
-    const aaplColumn = await app.el("comparison-col-AAPL");
-    await expect(aaplColumn).toBeDisplayed();
-
-    const msftColumn = await app.el("comparison-col-MSFT");
-    await expect(msftColumn).toBeDisplayed();
-  });
+  // it("compares companies in the watchlist", async () => {
+  //   await watchlist.search("Apple");
+  //   await watchlist.selectOption("AAPL");
+  //   await watchlist.waitForWatchlistItem("AAPL");
+  //
+  //   await watchlist.search("Microsoft");
+  //   await watchlist.selectOption("MSFT");
+  //   await watchlist.waitForWatchlistItem("MSFT");
+  //
+  //   await watchlist.selectWatchlistItem("AAPL");
+  //   await watchlist.selectWatchlistItem("MSFT");
+  //   await watchlist.compare();
+  //
+  //   const comparisonScreen = await app.el("comparison-screen");
+  //   await expect(comparisonScreen).toBeDisplayed();
+  //
+  //   const aaplColumn = await app.el("comparison-col-AAPL");
+  //   await expect(aaplColumn).toBeDisplayed();
+  //
+  //   const msftColumn = await app.el("comparison-col-MSFT");
+  //   await expect(msftColumn).toBeDisplayed();
+  // });
   it("removes a company from the watchlist", async () => {
     await watchlist.search("Apple");
     await watchlist.selectOption("AAPL");

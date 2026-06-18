@@ -232,6 +232,7 @@ export default function WatchlistScreen() {
           renderItem={renderItem}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         />
       )}
     </KeyboardAvoidingView>

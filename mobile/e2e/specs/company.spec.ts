@@ -14,7 +14,7 @@ describe("Company", () => {
   beforeEach(async () => {
     await app.restart();
     await auth.login(EMAIL, PASSWORD);
-    const searchTab = await app.el("company-tab"); // Assuming there's a way to get to companies?
+    const searchTab = await app.el("company-tab");
     await searchTab.click();
   });
   after(async () => {

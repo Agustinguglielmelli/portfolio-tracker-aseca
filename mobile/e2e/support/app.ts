@@ -15,10 +15,7 @@ export class AppiumBrowser {
 
   async tap(testId: string, timeout = 10_000): Promise<void> {
     const elem = await this.elExists(testId, timeout);
-    const size = await elem.getSize();
-    const x = Math.round(size.width / 2);
-    const y = Math.round(size.height / 2);
-    await driver.execute('mobile: tap', { element: elem.elementId, x, y });
+    await elem.click();
   }
 
   async type(testId: string, text: string, timeout = 10_000): Promise<void> {

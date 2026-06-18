@@ -19,26 +19,7 @@ export class AuthScreen {
       try { await driver.hideKeyboard(); } catch (e) {}
     }
     await this.app.tap("login-submit");
-
-    // Wait for the iOS "Save Password" alert to appear (it sometimes blocks the UI)
-    try {
-      await driver.waitUntil(
-        async () => {
-          try {
-            await driver.getAlertText();
-            return true;
-          } catch {
-            return false;
-          }
-        },
-        { timeout: 4000 }
-      );
-      // Dismiss the alert
-      await driver.dismissAlert();
-    } catch (e) {
-      // Alert didn't appear or couldn't be dismissed, just continue
-    }
-
+    
     await this.app.el("trade-button", 50_000);
     await this.app.pause(1500);
   }
@@ -59,7 +40,6 @@ export class AuthScreen {
       const emailInput = await this.app.el("email-input", 10000);
       await emailInput.waitForDisplayed();
     } catch (e) {
-      // Ignore errors if we are not on the dashboard or already logged out
     }
   }
   async goToRegister(): Promise<void> {
