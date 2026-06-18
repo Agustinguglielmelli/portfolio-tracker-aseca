@@ -6,7 +6,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY locustfile.py .
-COPY tests/ tasks/
+COPY common/ common/
+COPY workflows/ workflows/
 
 EXPOSE 8089
 
